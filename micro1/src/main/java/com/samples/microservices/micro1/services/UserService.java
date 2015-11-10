@@ -1,0 +1,38 @@
+package com.samples.microservices.micro1.services;
+import com.samples.microservices.micro1.model.User;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * Created by assafkamil on 11/9/15.
+ */
+@Service
+public class UserService {
+    HashMap<String, User> users = new HashMap<String, User>();
+
+    public User create(String username, String password) {
+        User user = new User(username, UUID.randomUUID().toString(), password);
+        users.put(user.getUserId(), user);
+        return user;
+    }
+
+    public User getById(String userId) {
+        return users.get(userId);
+    }
+
+    public List<User> getAll(int start, int limit) {
+        List<User> usersResult = new ArrayList<User>();
+        List<User> userValues = new ArrayList<User>(users.values());
+        if(limit < 0) {
+            limit = userValues.size();
+        }
+        for(int i=start; i < start + limit; i++) {
+            usersResult.add(userValues.get(i));
+        }
+        return usersResult;
+    }
+}
