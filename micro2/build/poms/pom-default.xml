@@ -13,7 +13,7 @@
     </dependency>
     <dependency>
       <groupId>com.samples.microservices</groupId>
-      <artifactId>micro1</artifactId>
+      <artifactId>micro1-sdk</artifactId>
       <version>0.0.1</version>
       <scope>compile</scope>
       <exclusions>

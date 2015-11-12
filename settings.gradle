@@ -4,3 +4,7 @@ include 'micro1'
 
 include 'micro2'
 
+include 'micro1-sdk'
+
+include 'micro2-sdk'
+
