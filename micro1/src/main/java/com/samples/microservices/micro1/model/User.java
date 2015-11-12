@@ -48,4 +48,26 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+
+        User user = (User) o;
+
+        if (!password.equals(user.password)) return false;
+        if (!userId.equals(user.userId)) return false;
+        if (!username.equals(user.username)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = userId.hashCode();
+        result = 31 * result + username.hashCode();
+        result = 31 * result + password.hashCode();
+        return result;
+    }
 }

@@ -84,5 +84,10 @@
     <orderEntry type="library" exported="" name="Gradle: commons-lang:commons-lang:2.6" level="project" />
     <orderEntry type="module" module-name="micro1" />
     <orderEntry type="library" exported="" name="Gradle: com.samples.microservices:micro1-sdk:0.0.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.springframework.boot:spring-boot-starter-test:1.2.2.RELEASE" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.mockito:mockito-core:1.10.19" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.hamcrest:hamcrest-library:1.3" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.springframework:spring-test:4.1.5.RELEASE" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.objenesis:objenesis:2.1" level="project" />
   </component>
 </module>
