@@ -13,7 +13,7 @@ public interface Users {
     @RequestMapping(value="/users", method = RequestMethod.POST, consumes = "application/json")
     public UserResponse create(@RequestBody UserCreateRequest request);
 
-    @RequestMapping(value="/users/{id}", method = RequestMethod.GET)
+    @RequestMapping(value="/users/{id}", method = RequestMethod.GET, consumes = "application/json")
     public UserResponse getById(@PathVariable("id") String id);
 
     @RequestMapping(value="/users", method = RequestMethod.GET)
