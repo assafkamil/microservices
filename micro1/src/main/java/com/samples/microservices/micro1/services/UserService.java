@@ -1,5 +1,6 @@
 package com.samples.microservices.micro1.services;
 import com.samples.microservices.micro1.model.User;
+import com.samples.microservices.micro1.services.Exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +25,12 @@ public class UserService {
         return user;
     }
 
-    public User getById(String userId) {
-        return users.get(userId);
+    public User getById(String userId) throws UserNotFoundException {
+        User user = users.get(userId);
+        if(user == null) {
+            throw new UserNotFoundException(userId);
+        }
+        return user;
     }
 
     public List<User> getAll(int start, int limit) {

@@ -4,16 +4,15 @@ import com.samples.microservices.micro1.api.UserCreateRequest;
 import com.samples.microservices.micro1.api.UserResponse;
 import com.samples.microservices.micro1.api.UserResponses;
 import com.samples.microservices.micro1.model.User;
+import com.samples.microservices.micro1.services.Exceptions.UserNotFoundException;
 import com.samples.microservices.micro1.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by assafkamil on 11/9/15.
- */
 @RestController
 public class UserController {
     @Autowired
@@ -29,7 +28,7 @@ public class UserController {
     }
 
     @RequestMapping(value="/users/{id}", method = RequestMethod.GET)
-    public UserResponse getById(@PathVariable("id")String id) {
+    public UserResponse getById(@PathVariable("id")String id) throws UserNotFoundException {
         return convertToResponse(userService.getById(id));
     }
 
@@ -55,6 +54,12 @@ public class UserController {
         }
         Integer cursorResult = start + userResponses.size();
         return new UserResponses(userResponses, cursorResult.toString());
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(UserNotFoundException.class)
+    public @ResponseBody String handler(UserNotFoundException e) {
+        return e.getUserId();
     }
 }
 
