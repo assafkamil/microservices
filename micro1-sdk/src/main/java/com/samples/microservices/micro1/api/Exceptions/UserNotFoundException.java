@@ -1,4 +1,4 @@
-package com.samples.microservices.micro1.services.Exceptions;
+package com.samples.microservices.micro1.api.Exceptions;
 
 public class UserNotFoundException extends Exception {
     private String userId;
