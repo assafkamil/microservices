@@ -1,7 +1,6 @@
 package com.samples.microservices.configuration;
 
-/**
- * Created by assafkamil on 11/23/15.
- */
+import org.springframework.context.annotation.Bean;
+
 public class FeignBaseConfiguration {
 }

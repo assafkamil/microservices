@@ -1,7 +1,12 @@
 package com.samples.microservices.feign;
 
-/**
- * Created by assafkamil on 11/23/15.
- */
-public class ErrorDecoderImp {
+import feign.Response;
+import feign.codec.ErrorDecoder;
+
+public class ErrorDecoderImp implements ErrorDecoder{
+    @Override
+    public Exception decode(String methodKey, Response response) {
+        int status = response.status();
+        return new Exception();
+    }
 }
