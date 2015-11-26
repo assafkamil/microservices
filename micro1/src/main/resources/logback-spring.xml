@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml" />
+    <logger name="sample.logback" level="DEBUG" />
+    <springProfile name="staging">
+        <logger name="sample.logback" level="TRACE" />
+    </springProfile>
+
+    <appender name="LE"
+              class="com.logentries.logback.LogentriesAppender">
+        <Debug>False</Debug>
+        <Token>6afba336-6647-366f-9481-d1e57a58c921</Token>
+        <Ssl>False</Ssl>
+        <facility>USER</facility>
+        <layout>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </layout>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="LE" />
+    </root>
+</configuration>

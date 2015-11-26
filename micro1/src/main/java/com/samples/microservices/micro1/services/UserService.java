@@ -1,6 +1,9 @@
 package com.samples.microservices.micro1.services;
+import com.netflix.loadbalancer.reactive.ExecutionListener;
 import com.samples.microservices.micro1.model.User;
 import com.samples.microservices.micro1.services.Exceptions.UserNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +22,12 @@ public class UserService {
 
     HashMap<String, User> users = new HashMap<String, User>();
 
+    private static final Logger logger = LoggerFactory
+            .getLogger(UserService.class);
+
     public User create(String username, String password) {
+        logger.debug("new user created " + username);
+
         User user = new User(username, userIdGeneratorService.generateId(), password);
         users.put(user.getUserId(), user);
         return user;
@@ -28,7 +36,8 @@ public class UserService {
     public User getById(String userId) throws UserNotFoundException {
         User user = users.get(userId);
         if(user == null) {
-            throw new UserNotFoundException(userId);
+            UserNotFoundException exception = new UserNotFoundException(userId);
+            throw exception;
         }
         return user;
     }
