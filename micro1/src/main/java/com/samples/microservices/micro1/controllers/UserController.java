@@ -32,6 +32,11 @@ public class UserController {
         return convertToResponse(userService.getById(id));
     }
 
+    @RequestMapping(value="/users/name/{username}", method = RequestMethod.GET)
+    public UserResponse getByUsername(@PathVariable("username")String username) throws UserNotFoundException {
+        return convertToResponse(userService.getByUsername(username));
+    }
+
     @RequestMapping(value="/users", method = RequestMethod.GET)
     public List<UserResponse> getAll(@RequestParam(value="start", defaultValue = "0") int start,
                                      @RequestParam(value="limit", defaultValue = "-1") int limit) {

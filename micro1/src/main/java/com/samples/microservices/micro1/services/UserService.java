@@ -1,45 +1,60 @@
 package com.samples.microservices.micro1.services;
 import com.netflix.loadbalancer.reactive.ExecutionListener;
 import com.samples.microservices.micro1.model.User;
+import com.samples.microservices.micro1.repository.UserRepository;
 import com.samples.microservices.micro1.services.Exceptions.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Created by assafkamil on 11/9/15.
- */
 @Service
+@Transactional(readOnly = true)
 public class UserService {
     @Autowired
     private UserIdGeneratorService userIdGeneratorService;
 
     HashMap<String, User> users = new HashMap<String, User>();
 
+    @Autowired
+    private UserRepository userRepository;
+
     private static final Logger logger = LoggerFactory
             .getLogger(UserService.class);
 
+    @Transactional(readOnly = false)
     public User create(String username, String password) {
         logger.debug("new user created " + username);
 
         User user = new User(username, userIdGeneratorService.generateId(), password);
-        users.put(user.getUserId(), user);
+        userRepository.save(user);
         return user;
     }
 
     public User getById(String userId) throws UserNotFoundException {
-        User user = users.get(userId);
+        User user = userRepository.findOne(userId);
         if(user == null) {
             UserNotFoundException exception = new UserNotFoundException(userId);
             throw exception;
         }
         return user;
+    }
+
+    public User getByUsername(String username) throws UserNotFoundException {
+        List<User> users = userRepository.findByUsername(username);
+        if(users.size() == 0) {
+            UserNotFoundException exception = new UserNotFoundException(username);
+            throw exception;
+        }
+        return users.get(0);
     }
 
     public List<User> getAll(int start, int limit) {
@@ -48,8 +63,10 @@ public class UserService {
         if(limit < 0) {
             limit = userValues.size();
         }
-        for(int i=start; i < start + limit; i++) {
-            usersResult.add(userValues.get(i));
+
+        Page<User> users = userRepository.findAll(new PageRequest(start, limit));
+        for(User user : users) {
+            usersResult.add(user);
         }
         return usersResult;
     }

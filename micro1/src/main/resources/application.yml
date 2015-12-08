@@ -2,5 +2,15 @@ spring:
   application:
     name: micro1
 
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/sample
+    username: sampleadmin
+    password: 654321
+  jpa:
+     show-sql: true
+     hibernate:
+      ddl-auto: validate
+
 server:
   port: 8070

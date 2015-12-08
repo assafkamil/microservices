@@ -1,11 +1,17 @@
 package com.samples.microservices.micro1.model;
 
-/**
- * Created by assafkamil on 11/9/15.
- */
+
+import javax.persistence.*;
+import java.util.List;
+
+@Entity(name="users")
 public class User {
+    @Id
+    @Column(name = "user_id")
     private String userId;
+    @Column(name = "username")
     private String username;
+    @Column(name = "password")
     private String password;
 
     public User() {}

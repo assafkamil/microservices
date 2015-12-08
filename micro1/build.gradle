@@ -44,6 +44,8 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-aop")
     compile("com.logentries:logentries-appender:1.1.32")
     compile("com.samples.microservices:micro1-sdk:0.0.1")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    compile("mysql:mysql-connector-java:5.1.37")
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
