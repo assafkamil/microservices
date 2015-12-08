@@ -1,17 +1,13 @@
 package com.samples.microservices.micro1.services;
+import com.samples.microservices.micro1.api.Exceptions.UserNotFoundException;
 import com.samples.microservices.micro1.model.User;
-import com.samples.microservices.micro1.services.Exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
-/**
- * Created by assafkamil on 11/9/15.
- */
 @Service
 public class UserService {
     @Autowired

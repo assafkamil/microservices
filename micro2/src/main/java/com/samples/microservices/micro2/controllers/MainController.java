@@ -1,5 +1,6 @@
 package com.samples.microservices.micro2.controllers;
 
+import com.samples.microservices.micro1.api.Exceptions.UserNotFoundException;
 import com.samples.microservices.micro1.api.UserCreateRequest;
 import com.samples.microservices.micro1.api.UserResponse;
 import com.samples.microservices.micro1.api.Users;
@@ -22,6 +23,17 @@ public class MainController {
         userCreateRequest.setUsername("moshe");
         userCreateRequest.setPassword("aaaaa");
         UserResponse userResponse = users.create(userCreateRequest);
+        return userResponse.getUserId();
+    }
+
+    @RequestMapping("/user")
+    public String micro1Find() {
+        UserResponse userResponse = null;
+        try {
+            userResponse = users.getById("momo");
+        } catch (UserNotFoundException e) {
+            e.printStackTrace();
+        }
         return userResponse.getUserId();
     }
 }

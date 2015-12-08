@@ -3,12 +3,18 @@ version '1.0'
 apply plugin: 'java'
 apply plugin: 'maven'
 
+group = "com.samples.microservices"
+version =  "0.0.1"
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
     mavenLocal()
+    maven {
+        url "http://repo.spring.io/milestone"
+    }
 }
 
 buildscript {
@@ -28,16 +34,16 @@ apply plugin: "spring-boot"
 
 dependencyManagement {
     imports {
-        mavenBom 'org.springframework.cloud:spring-cloud-starter-parent:1.0.2.RELEASE'
+        mavenBom 'org.springframework.cloud:spring-cloud-starter-parent:Brixton.M1'
     }
 }
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web:1.2.7.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.cloud:spring-cloud-starter-feign")
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
 
-configurations.all {
+/*configurations.all {
     resolutionStrategy {
         eachDependency { DependencyResolveDetails details ->
             if (details.requested.group == 'com.netflix.feign') {
@@ -45,4 +51,4 @@ configurations.all {
             }
         }
     }
-}
+}*/

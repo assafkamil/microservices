@@ -2,21 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.samples.microservices</groupId>
-  <artifactId>micro1</artifactId>
+  <artifactId>base</artifactId>
   <version>0.0.1</version>
   <dependencies>
-    <dependency>
-      <groupId>com.samples.microservices</groupId>
-      <artifactId>base</artifactId>
-      <version>0.0.1</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>commons-logging</artifactId>
-          <groupId>commons-logging</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -25,25 +13,7 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.samples.microservices</groupId>
-      <artifactId>micro1-sdk</artifactId>
-      <version>0.0.1</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>commons-logging</artifactId>
-          <groupId>commons-logging</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-      <version>1.2.7.RELEASE</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -60,12 +30,6 @@
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-feign</artifactId>
       <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>commons-logging</artifactId>
-          <groupId>commons-logging</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
   <dependencyManagement>
@@ -73,7 +37,7 @@
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-parent</artifactId>
-        <version>1.0.0.RELEASE</version>
+        <version>Brixton.M1</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>

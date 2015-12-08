@@ -16,6 +16,9 @@ jar {
 repositories {
     mavenCentral()
     mavenLocal()
+    maven {
+        url "http://repo.spring.io/milestone"
+    }
 }
 
 buildscript {
@@ -35,13 +38,13 @@ apply plugin: "spring-boot"
 
 dependencyManagement {
     imports {
-        mavenBom 'org.springframework.cloud:spring-cloud-starter-parent:1.0.0.RELEASE'
+        mavenBom 'org.springframework.cloud:spring-cloud-starter-parent:Brixton.M1'
     }
 }
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web:1.2.7.RELEASE")
-    compile("org.springframework.boot:spring-boot-starter-log4j2")
+    compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.cloud:spring-cloud-starter-feign")
+    compile("com.samples.microservices:base:0.0.1")
     compile("com.samples.microservices:micro1-sdk:0.0.1")
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile group: 'junit', name: 'junit', version: '4.11'
