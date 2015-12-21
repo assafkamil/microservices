@@ -24,16 +24,19 @@ public class UserController implements UsersResource {
     }
 
     @Override
+    @RequestMapping(value="/users", method = RequestMethod.POST, consumes = "application/json")
     public UserResponse create(@RequestBody UserCreateRequest request) {
         return convertToResponse(userService.create(request.getUsername(), request.getPassword()));
     }
 
     @Override
+    @RequestMapping(value="/users/{id}", method = RequestMethod.GET)
     public UserResponse getById(@PathVariable("id") String id) throws UserNotFoundException{
         return convertToResponse(userService.getById(id));
     }
 
     @Override
+    @RequestMapping(value="/users", method = RequestMethod.GET)
     public List<UserResponse> getAll(@RequestParam(value = "start", defaultValue = "0") int start,
                                      @RequestParam(value = "limit", defaultValue = "-1") int limit) {
         return userService.getAll(start, limit).stream()
@@ -42,6 +45,7 @@ public class UserController implements UsersResource {
     }
 
     @Override
+    @RequestMapping(value="/users2", method = RequestMethod.GET)
     public UserResponses getAll2(@RequestParam(value = "cursor", defaultValue = "") String cursor) {
         int start = 0;
         if(!cursor.isEmpty()) {
@@ -54,12 +58,5 @@ public class UserController implements UsersResource {
         Integer cursorResult = start + userResponses.size();
         return new UserResponses(userResponses, cursorResult.toString());
     }
-
-/*
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(UserNotFoundException.class)
-    public @ResponseBody String handler(UserNotFoundException e) {
-        return e.getUserId();
-    }*/
 }
 

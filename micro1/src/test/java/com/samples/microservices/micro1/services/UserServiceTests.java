@@ -5,6 +5,7 @@ package com.samples.microservices.micro1.services;
  */
 
 import com.samples.microservices.micro1.Application;
+import com.samples.microservices.micro1.api.Exceptions.UserNotFoundException;
 import com.samples.microservices.micro1.model.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +35,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void testGetById() {
+    public void testGetById() throws UserNotFoundException {
         User user = userService.create("user1", "abc");
         User user1 = userService.getById(user.getUserId());
         assertEquals(user, user1);

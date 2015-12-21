@@ -1,6 +1,8 @@
 spring:
   application:
     name: micro1
+  aop:
+    proxy-target-class: true
 
 server:
   port: 8070
