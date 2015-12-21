@@ -1,17 +1,13 @@
+version '1.0'
+
 apply plugin: 'java'
 apply plugin: 'maven'
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-version = '1.0'
 
 group = "com.samples.microservices"
 version =  "0.0.1"
 
-jar {
-    baseName = 'micro1'
-    version =  '0.0.1'
-}
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -42,26 +38,17 @@ dependencyManagement {
     }
 }
 dependencies {
-    compile("org.springframework.cloud:spring-cloud-starter-config")
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.cloud:spring-cloud-starter-feign")
-    compile("org.springframework.boot:spring-boot-starter-aop")
-    compile("com.logentries:logentries-appender:1.1.32")
-    compile("org.springframework.boot:spring-boot-starter-data-jpa")
-    compile("mysql:mysql-connector-java:5.1.37")
-    compile("org.springframework:spring-aspects")
-    compile project(":base")
-    compile project(":micro1-sdk")
-    testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
 
-configurations.all {
+/*configurations.all {
     resolutionStrategy {
         eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group.startsWith('com.netflix.feign')) {
+            if (details.requested.group == 'com.netflix.feign') {
                 details.useVersion "8.6.0"
             }
         }
     }
-}
+}*/

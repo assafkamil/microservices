@@ -11,6 +11,9 @@ version =  "0.0.1"
 repositories {
     mavenCentral()
     mavenLocal()
+    maven {
+        url "http://repo.spring.io/milestone"
+    }
 }
 
 buildscript {
@@ -30,11 +33,23 @@ apply plugin: "spring-boot"
 
 dependencyManagement {
     imports {
-        mavenBom 'org.springframework.cloud:spring-cloud-starter-parent:1.0.0.RELEASE'
+        mavenBom 'org.springframework.cloud:spring-cloud-starter-parent:Angel.SR4'
     }
 }
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web:1.2.7.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.cloud:spring-cloud-starter-feign")
+    compile("org.springframework:spring-aspects")
+    compile project(":micro2")
     testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+
+configurations.all {
+    resolutionStrategy {
+        eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group.startsWith('com.netflix.feign')) {
+                details.useVersion "8.6.0"
+            }
+        }
+    }
 }

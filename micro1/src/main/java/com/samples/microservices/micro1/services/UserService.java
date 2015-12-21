@@ -5,6 +5,8 @@ import com.samples.microservices.micro1.repository.UserRepository;
 import com.samples.microservices.micro1.services.Exceptions.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.samples.microservices.micro1.api.Exceptions.UserNotFoundException;
+import com.samples.microservices.micro1.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
