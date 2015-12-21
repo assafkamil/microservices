@@ -1,12 +1,9 @@
 package com.samples.microservices.micro1.services;
-import com.netflix.loadbalancer.reactive.ExecutionListener;
 import com.samples.microservices.micro1.model.User;
 import com.samples.microservices.micro1.repository.UserRepository;
-import com.samples.microservices.micro1.services.Exceptions.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.samples.microservices.micro1.api.Exceptions.UserNotFoundException;
-import com.samples.microservices.micro1.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
