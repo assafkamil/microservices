@@ -4,15 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(using = ExceptionDeserializer.class)
-public class ExceptionSerializer {
+public class ExceptionSerializeWrapper {
     private String className;
 
-    @JsonIgnoreProperties({"cause", "stackTrace", "suppressed"})
-    private Exception exception;
+    private ExceptionBase exception;
 
-    public ExceptionSerializer() {}
+    public ExceptionSerializeWrapper() {}
 
-    public ExceptionSerializer(Exception exception) {
+    public ExceptionSerializeWrapper(ExceptionBase exception) {
         this.exception = exception;
         this.className = exception.getClass().getCanonicalName();
     }
@@ -25,11 +24,11 @@ public class ExceptionSerializer {
         this.className = className;
     }
 
-    public Exception getException() {
+    public ExceptionBase getException() {
         return exception;
     }
 
-    public void setException(Exception exception) {
+    public void setException(ExceptionBase exception) {
         this.exception = exception;
     }
 }

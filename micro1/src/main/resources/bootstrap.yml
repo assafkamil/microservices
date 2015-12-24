@@ -1,0 +1,3 @@
+vault:
+  bucket: vault
+  file: ${sample.env.var}/vault.json

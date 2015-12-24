@@ -5,7 +5,6 @@ import com.samples.microservices.micro1.api.Exceptions.UserNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 public interface UsersResource {
     @RequestMapping(value="/users", method = RequestMethod.POST, consumes = "application/json")
     public UserResponse create(@RequestBody UserCreateRequest request);

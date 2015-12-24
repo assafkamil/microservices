@@ -20,8 +20,6 @@ public class UserService {
     @Autowired
     private UserIdGeneratorService userIdGeneratorService;
 
-    HashMap<String, User> users = new HashMap<String, User>();
-
     @Autowired
     private UserRepository userRepository;
 
@@ -56,12 +54,11 @@ public class UserService {
     }
 
     public List<User> getAll(int start, int limit) {
-        List<User> usersResult = new ArrayList<User>();
-        List<User> userValues = new ArrayList<User>(users.values());
-        if(limit < 0) {
-            limit = userValues.size();
-        }
+        List<User> usersResult = new ArrayList<>();
 
+        if(limit <= 0) {
+            limit = Integer.MAX_VALUE;
+        }
         Page<User> users = userRepository.findAll(new PageRequest(start, limit));
         for(User user : users) {
             usersResult.add(user);
