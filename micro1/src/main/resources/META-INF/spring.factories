@@ -1,1 +1,1 @@
-org.springframework.cloud.bootstrap.BootstrapConfiguration=com.samples.bootstrap.LoadVaultProperties
+#org.springframework.cloud.bootstrap.BootstrapConfiguration=com.samples.bootstrap.LoadVaultProperties

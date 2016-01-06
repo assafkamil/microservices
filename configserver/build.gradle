@@ -9,7 +9,7 @@ group = "com.samples.microservices"
 version =  "0.0.1"
 
 jar {
-    baseName = 'micro2'
+    baseName = 'configserver'
     version =  '0.0.1'
 }
 
@@ -17,7 +17,7 @@ repositories {
     mavenCentral()
     mavenLocal()
     maven {
-        url "http://repo.spring.io/milestone"
+        url "http://repo.spring.io/snapshot"
     }
 }
 
@@ -42,24 +42,12 @@ dependencyManagement {
     }
 }
 dependencies {
+    compile("org.springframework.cloud:spring-cloud-config-server")
     compile("org.springframework.boot:spring-boot-starter-web")
-    compile("org.springframework.cloud:spring-cloud-starter-feign")
-    compile("org.springframework:spring-aspects")
-    compile("org.springframework.cloud:spring-cloud-starter-consul-all:1.0.0.BUILD-SNAPSHOT")
+    compile("org.springframework.boot:spring-boot-starter-actuator")
     compile("org.springframework.cloud:spring-cloud-commons")
     compile("org.springframework.cloud:spring-cloud-context")
-    compile project(":micro1-sdk")
-    compile project(":base")
+    compile("com.logentries:logentries-appender:1.1.32")
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile group: 'junit', name: 'junit', version: '4.11'
-}
-
-configurations.all {
-    resolutionStrategy {
-        eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group.startsWith('com.netflix.feign')) {
-                details.useVersion "8.6.0"
-            }
-        }
-    }
 }

@@ -8,6 +8,7 @@ import com.samples.microservices.micro1.model.User;
 import com.samples.microservices.micro1.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,12 +16,21 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 @RestController
+@RefreshScope
 public class UserController {
     @Autowired
     private UserService userService;
 
+    @Value("${users.value}")
+    private String value;
+
     private UserResponse convertToResponse(User user) {
         return new UserResponse(user.getUsername(), user.getUserId());
+    }
+
+    @RequestMapping(value="/value", method = RequestMethod.GET)
+    public String getValue() {
+        return value;
     }
 
     @RequestMapping(value="/users", method = RequestMethod.POST, consumes = "application/json")

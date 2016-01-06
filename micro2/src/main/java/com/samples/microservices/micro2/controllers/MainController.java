@@ -30,7 +30,7 @@ public class MainController {
     public String micro1Find() {
         UserResponse userResponse = null;
         try {
-            userResponse = users.getById("momo");
+            userResponse = users.getById("shmulik");
         } catch (UserNotFoundException e) {
             e.printStackTrace();
         }

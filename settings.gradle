@@ -8,4 +8,5 @@ include 'micro1-sdk'
 
 include 'micro2-sdk'
 include 'base'
+include 'configserver'
 

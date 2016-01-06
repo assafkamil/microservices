@@ -1,3 +1,9 @@
 vault:
   bucket: vault
-  file: ${sample.env.var}/vault.json
+  file: dev/vault.json
+
+
+spring:
+  cloud:
+    config:
+      failFast: true
