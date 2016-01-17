@@ -1,16 +1,15 @@
 package com.samples.microservices.micro2.api;
 
+import com.samples.microservices.micro1.api.Exceptions.UserNotFoundException;
 import com.samples.microservices.micro1.api.UserCreateRequest;
 import com.samples.microservices.micro1.api.UserResponse;
 import com.samples.microservices.micro1.api.UserResponses;
 import com.samples.microservices.micro1.api.Users;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-/**
- * Created by assafkamil on 11/12/15.
- */
 @Service
 public class UsersTestImp implements Users {
     @Override
@@ -20,6 +19,11 @@ public class UsersTestImp implements Users {
 
     @Override
     public UserResponse getById(String s) {
+        return null;
+    }
+
+    @Override
+    public UserResponse getByUsername(@PathVariable("username") String username) throws UserNotFoundException {
         return null;
     }
 

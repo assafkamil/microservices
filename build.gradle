@@ -1,12 +1,139 @@
-apply plugin: 'java'
-
-sourceCompatibility = 1.5
-version = '1.0'
-
-repositories {
-    mavenCentral()
+version = '1.0.0'
+buildscript {
+    ext {
+        springBootVersion = '1.3.1.RELEASE'
+        springCloudVersion = 'Brixton.M4'
+        springGradleDepManagement = '0.5.3.RELEASE'
+        newrelicVersion='3.5.1'
+    }
+    repositories {
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("io.spring.gradle:dependency-management-plugin:${springGradleDepManagement}")
+    }
 }
 
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+
+allprojects {
+    group = "com.samples.microservices"
+
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: "spring-boot"
+    //apply plugin: 'war'
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    repositories {
+        jcenter()
+        mavenLocal()
+        maven { url "http://repo.spring.io/libs-snapshot" }
+        maven { url "http://repo.spring.io/milestone" }
+    }
+}
+
+subprojects {
+    buildscript {
+        ext {
+            newrelicVersion = '3.5.1'
+        }
+        repositories {
+            jcenter()
+            maven {
+                url "https://plugins.gradle.org/m2/"
+            }
+        }
+        dependencies {
+            classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+            classpath("io.spring.gradle:dependency-management-plugin:${springGradleDepManagement}")
+        }
+    }
+
+    apply plugin: "spring-boot"
+    apply plugin: "io.spring.dependency-management"
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-starter-parent:${springCloudVersion}"
+        }
+    }
+
+    configurations {
+        newrelic	// Custom configuration to allow for the copying of the New Relic agent at run time.
+    }
+
+    dependencies {
+        compile("org.springframework.boot:spring-boot-starter-web")
+        compile("org.springframework.cloud:spring-cloud-starter-feign")
+        compile("org.springframework.boot:spring-boot-starter-aop")
+        testCompile("org.springframework.boot:spring-boot-starter-test")
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+    }
+
+    afterEvaluate { project ->
+        if (project.projectType == 'microservice' || project.projectType == "infra") {
+            /*apply plugin: 'war'
+
+            war {
+                baseName = project.name
+            }*/
+
+            configurations {
+                providedRuntime
+            }
+
+            dependencies {
+                newrelic "com.newrelic.agent.java:newrelic-agent:${newrelicVersion}"
+
+                //compile("org.springframework.cloud:spring-cloud-starter-config")
+                compile("org.springframework.boot:spring-boot-starter-web")
+                compile("org.springframework.cloud:spring-cloud-starter-feign")
+                compile("org.springframework.boot:spring-boot-starter-aop")
+                compile("org.springframework.boot:spring-boot-starter-actuator")
+                //compile("org.springframework.cloud:spring-cloud-starter-consul-all:1.0.0.BUILD-SNAPSHOT")
+                compile("org.springframework.cloud:spring-cloud-commons")
+                compile("org.springframework.cloud:spring-cloud-context")
+                compile("com.logentries:logentries-appender:1.1.32")
+                compile("org.springframework:spring-aspects")
+
+                compile("com.newrelic.agent.java:newrelic-api:${newrelicVersion}")
+                //providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+
+                testCompile("org.springframework.boot:spring-boot-starter-test")
+                testCompile group: 'junit', name: 'junit', version: '4.11'
+            }
+
+            task copyAgent(type: Copy) {
+                from {
+                    configurations.newrelic
+                }
+                into "$buildDir/lib"
+                rename ("newrelic-agent-${newrelicVersion}.jar", 'newrelic.jar')
+            }
+            task copyYaml(type: Copy) {
+                from 'src/main/resources/newrelic/newrelic.yml'
+                into "$buildDir/lib/"
+            }
+            springBoot {
+                agent = file("$buildDir/lib/newrelic.jar")
+            }
+
+            project.tasks.bootRun.dependsOn([copyAgent, copyYaml])
+        }
+    }
+
+    task wrapper(type: Wrapper) {
+        gradleVersion = '2.3'
+    }
+}
+
+configure(subprojects.findAll {it.name != 'base'}) {
+    dependencies {
+        compile project(":base")
+    }
 }

@@ -1,53 +1,6 @@
-apply plugin: 'java'
-apply plugin: 'maven'
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-version = '1.0'
-
-group = "com.samples.microservices"
+ext.projectType = "infra"
 version =  "0.0.1"
 
-jar {
-    baseName = 'configserver'
-    version =  '0.0.1'
-}
-
-repositories {
-    mavenCentral()
-    mavenLocal()
-    maven {
-        url "http://repo.spring.io/snapshot"
-    }
-}
-
-buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath("io.spring.gradle:dependency-management-plugin:0.5.2.RELEASE")
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.7.RELEASE")
-    }
-}
-
-apply plugin: "io.spring.dependency-management"
-apply plugin: "spring-boot"
-
-dependencyManagement {
-    imports {
-        mavenBom 'org.springframework.cloud:spring-cloud-starter-parent:Angel.SR4'
-    }
-}
 dependencies {
     compile("org.springframework.cloud:spring-cloud-config-server")
-    compile("org.springframework.boot:spring-boot-starter-web")
-    compile("org.springframework.boot:spring-boot-starter-actuator")
-    compile("org.springframework.cloud:spring-cloud-commons")
-    compile("org.springframework.cloud:spring-cloud-context")
-    compile("com.logentries:logentries-appender:1.1.32")
-    testCompile("org.springframework.boot:spring-boot-starter-test")
-    testCompile group: 'junit', name: 'junit', version: '4.11'
 }

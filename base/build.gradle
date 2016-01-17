@@ -1,55 +1,7 @@
-version '1.0'
-
-apply plugin: 'java'
-apply plugin: 'maven'
-
-group = "com.samples.microservices"
 version =  "0.0.1"
+ext.projectType = "library"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-    mavenLocal()
-    maven {
-        url "http://repo.spring.io/milestone"
-    }
-}
-
-buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath("io.spring.gradle:dependency-management-plugin:0.5.2.RELEASE")
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.7.RELEASE")
-    }
-}
-
-apply plugin: "io.spring.dependency-management"
-apply plugin: "spring-boot"
-
-dependencyManagement {
-    imports {
-        mavenBom 'org.springframework.cloud:spring-cloud-starter-parent:Angel.SR4'
-    }
-}
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web")
-    compile("org.springframework.cloud:spring-cloud-starter-feign")
-    compile("com.amazonaws:aws-java-sdk:1.10.43")
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile("com.amazonaws:aws-java-sdk:1.10.46")
+    compile("org.springframework.boot:spring-boot-starter-actuator")
 }
-
-/*configurations.all {
-    resolutionStrategy {
-        eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group == 'com.netflix.feign') {
-                details.useVersion "8.6.0"
-            }
-        }
-    }
-}*/
