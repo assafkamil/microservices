@@ -13,6 +13,8 @@ import troposphere.elasticloadbalancing as elb
 
 def create_load_balancer(template,
                          name,
+                         vpc_id,
+                         subnets=None,
                          region='us-east-1',
                          availability_zones=None,
                          elb_port=80,
@@ -48,6 +50,8 @@ def create_load_balancer(template,
         ]
 
     security_group_refs = [Ref(sg) for sg in security_groups]
+    if not subnets:
+        subnets = _get_vpc_subnets(vpc_id)
 
     if not availability_zones:
         availability_zones = _all_az(region)
@@ -82,6 +86,7 @@ def create_load_balancer(template,
         SecurityGroups=security_group_refs,
         LoadBalancerName=name,
         Scheme="internet-facing",
+        Subnets=subnets
     ))
 
     return {
@@ -96,11 +101,19 @@ def _all_az(region):
     return [az['ZoneName'] for az in response['AvailabilityZones']]
 
 
+def _get_vpc_subnets(vpc_id):
+    ec2 = boto3.resource('ec2')
+    vpc = ec2.Vpc(vpc_id)
+    return [subnet.id for subnet in vpc.subnets]
+
+
 def create_microservice_asg(template,
                             ami,
                             key_name,
                             instance_profile,
                             instance_type,
+                            vpc_id,
+                            subnets=None,
                             security_groups=[],
                             availability_zones=None,
                             region='us-east-1',
@@ -148,6 +161,9 @@ def create_microservice_asg(template,
     if not desired_capacity:
         desired_capacity = max_size
 
+    if not subnets:
+        subnets = _get_vpc_subnets(vpc_id)
+
     asg = template.add_resource(AutoScalingGroup(
         "AutoscalingGroup",
         DesiredCapacity=desired_capacity,
@@ -157,7 +173,8 @@ def create_microservice_asg(template,
         MaxSize=max_size,
         LoadBalancerNames=[Ref(load_balancer)] if load_balancer else None,
         AvailabilityZones=availability_zones,
-        HealthCheckType="EC2" if not load_balancer else "ELB"
+        HealthCheckType="EC2" if not load_balancer else "ELB",
+        VPCZoneIdentifier=subnets
     ))
 
     return {
@@ -173,6 +190,8 @@ def create_microservice_asg_with_elb(template,
                                      instance_profile,
                                      instance_type,
                                      elb_name,
+                                     vpc_id,
+                                     subnets=None,
                                      security_groups=[],
                                      availability_zones=[],
                                      region='us-east-1',
@@ -184,7 +203,12 @@ def create_microservice_asg_with_elb(template,
                                      max_size=1,
                                      desired_capacity=None,
                                      tags=[]):
+    if not subnets:
+        subnets = _get_vpc_subnets(vpc_id)
+
     lb_res = create_load_balancer(template, elb_name,
+                                  vpc_id=vpc_id,
+                                  subnets=subnets,
                                   region=region,
                                   availability_zones=availability_zones,
                                   elb_port=elb_port,
@@ -197,6 +221,8 @@ def create_microservice_asg_with_elb(template,
                                       key_name,
                                       instance_profile,
                                       instance_type,
+                                      vpc_id=vpc_id,
+                                      subnets=subnets,
                                       security_groups=security_groups,
                                       availability_zones=availability_zones,
                                       region=region,

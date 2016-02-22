@@ -4,7 +4,7 @@ import time
 import argparse
 from troposphere import Template
 from micorservice import create_microservice_asg_with_elb
-
+import sys
 
 def _print_events(client, stack_id, from_event_id):
     last_event_id = from_event_id
@@ -17,7 +17,7 @@ def _print_events(client, stack_id, from_event_id):
         else:
             events_res = client.describe_stack_events(StackName=stack_id)
         if not last_event_id:
-            last_event_id = events_res['StackEvents'][0]
+            last_event_id = events_res['StackEvents'][0]['EventId']
         print_events = False
         for event in events_res['StackEvents']:
             print event['EventId']
@@ -124,7 +124,7 @@ def update_stack(stack_name, template_body, region):
                             'UPDATE_ROLLBACK_COMPLETE'])
 
 
-def create_microservice_with_elb(name, ami, key_name, instance_profile, instance_type, region):
+def create_microservice_with_elb(name, ami, key_name, instance_profile, instance_type, region, vpc_id):
     t = Template()
     t.add_description("""\
     microservice stack""")
@@ -136,6 +136,7 @@ def create_microservice_with_elb(name, ami, key_name, instance_profile, instance
         instance_profile,
         instance_type,
         name,
+        vpc_id,
         region=region
     )
 
@@ -151,10 +152,12 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--profile", help="instance profile")
     parser.add_argument("-t", "--type", help="instance type")
     parser.add_argument("-r", "--region", help="region")
+    parser.add_argument("-v", "--vpc", help="vpc id")
     values = parser.parse_args()
 
     if values.create:
-        create_microservice_with_elb(
-            values.name, values.ami, values.keyname, values.profile, values.type, values.region
-        )
+        if not create_microservice_with_elb(
+            values.name, values.ami, values.keyname, values.profile, values.type, values.region, values.vpc
+        ):
+            sys.exit(-1)
 
