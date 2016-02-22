@@ -1,6 +1,9 @@
 import json
 import boto3
 import time
+import argparse
+from troposphere import Template
+from build.micorservice import create_microservice_asg_with_elb
 
 
 def _print_events(client, stack_id, from_event_id):
@@ -115,3 +118,35 @@ def update_stack(stack_name, template_body):
                             'UPDATE_ROLLBACK_IN_PROGRESS',
                             'UPDATE_ROLLBACK_FAILED',
                             'UPDATE_ROLLBACK_COMPLETE'])
+
+
+def create_microservice_with_elb(name, ami, key_name, instance_profile, instance_type):
+    t = Template()
+    t.add_description("""\
+    microservice stack""")
+
+    return create_microservice_asg_with_elb(
+        t,
+        ami,
+        key_name,
+        instance_profile,
+        instance_type,
+        name
+    )
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--create", help="Create microservice stack")
+    parser.add_argument("-n", "--name", help="name")
+    parser.add_argument("-k", "--keyname", help="keyname")
+    parser.add_argument("-a", "--ami", help="ami")
+    parser.add_argument("-p", "--profile", help="instance profile")
+    parser.add_argument("-t", "--type", help="instance type")
+    values = parser.parse_args()
+
+    if values.create:
+        create_microservice_with_elb(
+            values.name, values.ami, values.keyname, values.profile, values.type
+        )
+
