@@ -13,6 +13,8 @@ import troposphere.elasticloadbalancing as elb
 
 def create_load_balancer(template,
                          name,
+                         region='us-east-1',
+                         availability_zones=None,
                          elb_port=80,
                          security_groups=None,
                          http_health_check_url=None,
@@ -47,6 +49,9 @@ def create_load_balancer(template,
 
     security_group_refs = [Ref(sg) for sg in security_groups]
 
+    if not availability_zones:
+        availability_zones = _all_az(region)
+
     listeners = [
         elb.Listener(
             LoadBalancerPort=instance_port,
@@ -70,6 +75,7 @@ def create_load_balancer(template,
             Enabled=True,
             Timeout=120,
         ),
+        AvailabilityZones=availability_zones,
         HealthCheck=health_check,
         Listeners=listeners,
         CrossZone=True,
@@ -179,6 +185,8 @@ def create_microservice_asg_with_elb(template,
                                      desired_capacity=None,
                                      tags=[]):
     lb_res = create_load_balancer(template, elb_name,
+                                  region=region,
+                                  availability_zones=availability_zones,
                                   elb_port=elb_port,
                                   http_health_check_url=http_health_check_url,
                                   instance_port=instance_port,
