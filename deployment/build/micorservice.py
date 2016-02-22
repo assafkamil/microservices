@@ -31,7 +31,7 @@ def create_load_balancer(template,
 
     if not security_groups:
         security_groups = [
-            ec2.SecurityGroup(
+            template.add_resource(ec2.SecurityGroup(
                 "ELBSecurityGroup",
                 GroupDescription="ELB SG",
                 SecurityGroupIngress=[
@@ -42,7 +42,7 @@ def create_load_balancer(template,
                         CidrIp="0.0.0.0/0"
                     ),
                 ]
-            )
+            ))
         ]
 
     listeners = [
@@ -114,7 +114,7 @@ def create_microservice_asg(template,
                     IpProtocol=load_balancer.Listeners[0].Protocol,
                     FromPort=load_balancer.Listeners[0].LoadBalancerPort,
                     ToPort=load_balancer.Listeners[0].InstancePort,
-                    SourceSecurityGroupId=Ref(load_balancer_security_group[0])
+                    SourceSecurityGroupId=Ref(load_balancer_security_group)
                 ),
             ]
         ))
