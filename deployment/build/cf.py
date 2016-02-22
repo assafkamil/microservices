@@ -57,10 +57,10 @@ def _wait_for_stack(client, stack_id, success_statuses, failure_statuses):
         time.sleep(30)
 
 
-def create_stack(template, name, tags=None):
+def create_stack(template, name, region, tags=None):
     stack_json = template.to_json()
 
-    client = boto3.client('cloudformation')
+    client = boto3.client('cloudformation', region_name=region)
     response = client.create_stack(
         name,
         TemplateBody=stack_json,
@@ -98,8 +98,8 @@ def update_stack_template(stack_name, template):
     return json_orig_template
 
 
-def update_stack(stack_name, template_body):
-    client = boto3.client('cloudformation')
+def update_stack(stack_name, template_body, region):
+    client = boto3.client('cloudformation', region_name=region)
     response = client.update_stack(
         stack_name,
         TemplateBody=template_body,
@@ -120,7 +120,7 @@ def update_stack(stack_name, template_body):
                             'UPDATE_ROLLBACK_COMPLETE'])
 
 
-def create_microservice_with_elb(name, ami, key_name, instance_profile, instance_type):
+def create_microservice_with_elb(name, ami, key_name, instance_profile, instance_type, region):
     t = Template()
     t.add_description("""\
     microservice stack""")
@@ -131,7 +131,8 @@ def create_microservice_with_elb(name, ami, key_name, instance_profile, instance
         key_name,
         instance_profile,
         instance_type,
-        name
+        name,
+        region=region
     )
 
 
@@ -143,10 +144,11 @@ if __name__ == "__main__":
     parser.add_argument("-a", "--ami", help="ami")
     parser.add_argument("-p", "--profile", help="instance profile")
     parser.add_argument("-t", "--type", help="instance type")
+    parser.add_argument("-r", "--region", help="region")
     values = parser.parse_args()
 
     if values.create:
         create_microservice_with_elb(
-            values.name, values.ami, values.keyname, values.profile, values.type
+            values.name, values.ami, values.keyname, values.profile, values.type, values.region
         )
 
