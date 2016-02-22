@@ -17,22 +17,22 @@ def _print_events(client, stack_id, from_event_id):
             events_res = client.describe_stack_events(StackName=stack_id, NextToken=next_token)
         else:
             events_res = client.describe_stack_events(StackName=stack_id)
-        if not last_event_id:
-            last_event_id = events_res['StackEvents'][0]['EventId']
-        print_events = False
+#        if not last_event_id:
+#            last_event_id = events_res['StackEvents'][0]['EventId']
+#        print_events = False
         for event in events_res['StackEvents']:
-            print event['EventId']
-            if not print_events and event['EventId'] == last_event_id:
-                print_events = True
-            if print_events:
-                print "time: {}, status: {}, reason: {}, resource (logical): {}, resource (physical): {}, resource type: {}".format(
-                    event['Timestamp'],
-                    event['ResourceStatus'],
-                    event['ResourceStatusReason'],
-                    event['LogicalResourceId'],
-                    event['PhysicalResourceId'],
-                    event['ResourceType'])
-            last_event_id = event['EventId']
+#            print event['EventId']
+#            if not print_events and event['EventId'] == last_event_id:
+#                print_events = True
+#            if print_events:
+            print "time: {}, status: {}, reason: {}, resource (logical): {}, resource (physical): {}, resource type: {}".format(
+                event['Timestamp'],
+                event['ResourceStatus'],
+                event['ResourceStatusReason'],
+                event['LogicalResourceId'],
+                event['PhysicalResourceId'],
+                event['ResourceType'])
+#            last_event_id = event['EventId']
         next_token = events_res['NextToken'] if 'NextToken' in events_res else None
         loop_events = next_token is not None
     return last_event_id
