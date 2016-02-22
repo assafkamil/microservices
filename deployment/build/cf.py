@@ -135,7 +135,7 @@ def create_microservice_with_elb(name, ami, key_name, instance_profile, instance
         region=region
     )
 
-    return create_stack(t, name, region)
+    return create_stack(template=t, name=name, region=region)
 
 
 if __name__ == "__main__":
