@@ -83,7 +83,7 @@ def create_load_balancer(template,
 
 
 def _all_az(region):
-    client = boto3.client('ec2', region_name=region)
+    client = boto3.resource('ec2', region_name=region)
     response = client.describe_availability_zones(Filters=[{'Name': 'region-name', 'Values': [region]}])
     return [az['ZoneName'] for az in response['AvailabilityZones']]
 
