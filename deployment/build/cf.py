@@ -125,7 +125,7 @@ def create_microservice_with_elb(name, ami, key_name, instance_profile, instance
     t.add_description("""\
     microservice stack""")
 
-    return create_microservice_asg_with_elb(
+    create_microservice_asg_with_elb(
         t,
         ami,
         key_name,
@@ -134,6 +134,8 @@ def create_microservice_with_elb(name, ami, key_name, instance_profile, instance
         name,
         region=region
     )
+
+    return create_stack(t, name, region)
 
 
 if __name__ == "__main__":
