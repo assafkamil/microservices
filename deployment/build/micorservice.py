@@ -133,7 +133,7 @@ def create_microservice_asg(template,
             SecurityGroupIngress=[
                 ec2.SecurityGroupRule(
                     IpProtocol='tcp',
-                    FromPort=load_balancer.Listeners[0].LoadBalancerPort,
+                    FromPort=load_balancer.Listeners[0].InstancePort,
                     ToPort=load_balancer.Listeners[0].InstancePort,
                     SourceSecurityGroupId=Ref(load_balancer_security_group)
                 ),
