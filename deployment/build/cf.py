@@ -62,7 +62,7 @@ def create_stack(template, name, region, tags=None):
 
     client = boto3.client('cloudformation', region_name=region)
     response = client.create_stack(
-        name,
+        StackName=name,
         TemplateBody=stack_json,
         Tags=tags
     )
