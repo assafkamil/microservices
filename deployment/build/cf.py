@@ -57,7 +57,7 @@ def _wait_for_stack(client, stack_id, success_statuses, failure_statuses):
         time.sleep(30)
 
 
-def create_stack(template, name, region, tags=None):
+def create_stack(template, name, region, tags=[]):
     stack_json = template.to_json()
 
     client = boto3.client('cloudformation', region_name=region)
