@@ -51,7 +51,7 @@ def create_load_balancer(template,
 
     security_group_refs = [Ref(sg) for sg in security_groups]
     if not subnets:
-        subnets = _get_vpc_subnets(vpc_id)
+        subnets = _get_vpc_subnets(vpc_id, region)
 
     if not availability_zones:
         availability_zones = _all_az(region)
@@ -101,8 +101,8 @@ def _all_az(region):
     return [az['ZoneName'] for az in response['AvailabilityZones']]
 
 
-def _get_vpc_subnets(vpc_id):
-    ec2 = boto3.resource('ec2')
+def _get_vpc_subnets(vpc_id, region):
+    ec2 = boto3.resource('ec2', region_name=region)
     vpc = ec2.Vpc(vpc_id)
     return [subnet.id for subnet in vpc.subnets]
 
@@ -162,7 +162,7 @@ def create_microservice_asg(template,
         desired_capacity = max_size
 
     if not subnets:
-        subnets = _get_vpc_subnets(vpc_id)
+        subnets = _get_vpc_subnets(vpc_id, region)
 
     asg = template.add_resource(AutoScalingGroup(
         "AutoscalingGroup",
@@ -204,7 +204,7 @@ def create_microservice_asg_with_elb(template,
                                      desired_capacity=None,
                                      tags=[]):
     if not subnets:
-        subnets = _get_vpc_subnets(vpc_id)
+        subnets = _get_vpc_subnets(vpc_id, region)
 
     lb_res = create_load_balancer(template, elb_name,
                                   vpc_id=vpc_id,
