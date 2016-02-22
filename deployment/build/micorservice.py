@@ -114,7 +114,7 @@ def create_microservice_asg(template,
                     IpProtocol=load_balancer.Listeners[0].Protocol,
                     FromPort=load_balancer.Listeners[0].LoadBalancerPort,
                     ToPort=load_balancer.Listeners[0].InstancePort,
-                    SourceSecurityGroupId=Ref(load_balancer_security_group)
+                    SourceSecurityGroupId=Ref(load_balancer_security_group[0])
                 ),
             ]
         ))
@@ -165,7 +165,7 @@ def create_microservice_asg_with_elb(template,
                                      elb_name,
                                      security_groups=[],
                                      availability_zones=[],
-                                     region='us-east',
+                                     region='us-east-1',
                                      elb_port=80,
                                      http_health_check_url=None,
                                      instance_port=8080,
