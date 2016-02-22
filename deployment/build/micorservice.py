@@ -30,7 +30,7 @@ def create_load_balancer(template,
         HealthyThreshold="5",
         UnhealthyThreshold="2",
         Interval="30",
-        Timeout="15",
+        Timeout="15"
     )
 
     if not security_groups:
@@ -173,6 +173,7 @@ def create_microservice_asg(template,
         MinSize=min_size,
         MaxSize=max_size,
         LoadBalancerNames=[Ref(load_balancer)] if load_balancer else None,
+        HealthCheckGracePeriod=60,
         AvailabilityZones=availability_zones,
         HealthCheckType="EC2" if not load_balancer else "ELB",
         VPCZoneIdentifier=subnets
