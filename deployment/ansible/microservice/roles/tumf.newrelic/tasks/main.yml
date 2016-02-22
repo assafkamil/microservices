@@ -1,0 +1,37 @@
+---
+
+- name: Checking for key
+  fail:
+    msg: "newrelic_license_key has not been defined"
+  when: newrelic_license_key|default(False) == False
+
+- include: install_debian.yml
+  when: ansible_os_family == 'Debian' and not ansible_unit_test
+  tags:
+    - monitoring
+    - newrelic
+    - install
+    - newrelic-install
+
+- include: install_redhat.yml
+  when: ansible_os_family == 'RedHat' and not ansible_unit_test
+  tags:
+    - monitoring
+    - newrelic
+    - install
+    - newrelic-install
+
+- include: config.yml
+  tags:
+    - monitoring
+    - newrelic
+    - config
+    - newrelic-config
+
+- include: service.yml
+  when: not ansible_unit_test
+  tags:
+    - monitoring
+    - newrelic
+    - service
+    - newrelic-service

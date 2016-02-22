@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  author: Redouane Zait
+  description: Installs Oracle Java
+  company:
+  license: BSD
+  min_ansible_version: 1.2
+  platforms:
+  - name: Ubuntu
+    versions:
+    - all
+  categories:
+  - development
+  - system
+
+dependencies: []

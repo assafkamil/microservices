@@ -1,0 +1,15 @@
+version =  "0.0.1"
+
+ext.projectType = "microservice"
+
+/*dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.cloud:spring-cloud-aws:1.0.3.RELEASE'
+    }
+}*/
+
+dependencies {
+    compile 'org.springframework.cloud:spring-cloud-starter-aws'
+    compile 'org.springframework.cloud:spring-cloud-aws-messaging'
+    compile 'org.springframework.cloud:spring-cloud-aws-autoconfigure'
+}

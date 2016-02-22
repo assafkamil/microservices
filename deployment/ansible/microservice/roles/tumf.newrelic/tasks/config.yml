@@ -1,0 +1,14 @@
+---
+- name: Create /etc/newrelic Directory
+  file: state=directory path="{{ prefix_dir }}/etc/newrelic" recurse=yes
+  
+- name: Configuring module
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ prefix_dir }}/{{ item }}"
+    owner: "{{ newrelic_user }}"
+    group: "{{ newrelic_group }}"
+    mode: "0640"
+  notify: restart newrelic
+  with_items:
+    - "etc/newrelic/nrsysmond.cfg"

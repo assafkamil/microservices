@@ -1,0 +1,14 @@
+- hosts: all
+  roles:
+        - redouane.java
+        - Stouts.supervisor
+        - tumf.newrelic
+
+  vars:
+        supervisor_tasks:
+            - name: springboot
+              command: java -Dserver.port={{ port }} -Dspring.profiles.active={{ active_profile }} -jar {{ jar }}
+              autostart: true
+              autorestart: true
+        newrelic_license_key: yes
+        newrelic_service_state: started

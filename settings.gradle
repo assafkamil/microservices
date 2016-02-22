@@ -9,4 +9,6 @@ include 'micro2'
 
 
 include 'configserver'
+include 'logprocessor'
+include 'micro3'
 

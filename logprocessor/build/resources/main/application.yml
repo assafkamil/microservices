@@ -1,0 +1,11 @@
+cloud:
+  aws:
+    credentials:
+      accessKey: AKIAJAJXQQ2I5MBZUEPQ
+      secretKey: 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
+    region:
+      static: us-east-1
+
+vault:
+  bucket: somebucket
+  file: vaultfile.json

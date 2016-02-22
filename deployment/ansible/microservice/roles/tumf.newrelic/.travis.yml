@@ -1,0 +1,13 @@
+language: python
+python:
+- '2.7'
+install:
+- pip install ansible
+before_script:
+- ansible --version
+- ansible-playbook --syntax-check ./tests/test.yml -i ./tests/hosts
+script:
+- ./tests/run
+notifications:
+  slack:
+    secure: nCDL2ht4f+TZHMs27gfHrE91J/Uyke+OLU9sAIEYcZPO07/buv90XpJjnTTzUOMJu93ApP3MKdtRU93DqiY6rtYfjMTyMIF4YtIujooZjimHXVeSE4mNkMSK8TjMKsnxM5Ap1D93+xzsiqMDVnUcNp884QFDPrUUEYhHy1mCaTT9JdaOPMygAK0f61cVCEJznZmR2OAiWo6Km8tfs5DlPodKsiChMt1SaiSfJu+mRxO25aclOyax9ckk9nZDltVvADVQkC6/9diL1SqHNm0BIavDnwYcFWb7a0+Eww+4C4VarKZpJ7ID2I5SBmQU95/S78vEDey4gO21js/LCZLYL6EvD9fUYlQhvP8Pr0o0l4weOqnY2CJANu6Q1X5yfmgDh6cuh83XLJJKvU2ThNbIJgZhNAth77PFruFt7m970KiIWGajYo8lbWaIO3zrjIVWBK5RIuetLvIvPDUmi/fMLNCTTHIg+ARyMGibJSUdNtSVaACHyBYYeDM3hVCum9I8KGV2+f85RM0fw3+TCVNbpunkw016y9qNE9aLT3KfW1e11NN2d2nh0jdvqHQKZGyWAu4a8OOci4eph8EzHfq52IXxkq/7omFLnu0CFDxLMImCGUD0KkGJ8SridRsYKAnMXjmeHO13DS4bxZ1Zouu2tH8Cyl2hk4oIZd+FbUXPhxQ=

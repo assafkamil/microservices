@@ -1,0 +1,18 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aws-context="http://www.springframework.org/schema/cloud/aws/context"
+       xmlns:aws-messaging="http://www.springframework.org/schema/cloud/aws/messaging"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/cloud/aws/context
+        http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context-1.0.xsd">
+
+    <!-- <aws-context:context-instance-data /> -->
+    <aws-context:context-credentials>
+        <!--<aws-context:instance-profile-credentials/> -->
+        <aws-context:simple-credentials access-key="AKIAJAJXQQ2I5MBZUEPQ" secret-key="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"/>
+    </aws-context:context-credentials>
+
+    <!-- <aws-context:context-region region="eu-east-1"/> -->
+    <!--<aws-messaging:annotation-driven-queue-listener /> -->
+</beans>
