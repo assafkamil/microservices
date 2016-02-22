@@ -45,7 +45,8 @@ def create_load_balancer(template,
                         ToPort=elb_port,
                         CidrIp="0.0.0.0/0"
                     ),
-                ]
+                ],
+                VpcId=vpc_id
             ))
         ]
 
@@ -136,7 +137,8 @@ def create_microservice_asg(template,
                     ToPort=load_balancer.Listeners[0].InstancePort,
                     SourceSecurityGroupId=Ref(load_balancer_security_group)
                 ),
-            ]
+            ],
+            VpcId=vpc_id
         )))
 
     security_group_refs = [Ref(sg) for sg in security_groups]

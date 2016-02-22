@@ -26,12 +26,12 @@ def _print_events(client, stack_id, from_event_id):
 #                print_events = True
 #            if print_events:
             print "time: {}, status: {}, reason: {}, resource (logical): {}, resource (physical): {}, resource type: {}".format(
-                event['Timestamp'],
-                event['ResourceStatus'],
-                event['ResourceStatusReason'],
-                event['LogicalResourceId'],
-                event['PhysicalResourceId'],
-                event['ResourceType'])
+                event['Timestamp'] if 'Timestamp' in event else '',
+                event['ResourceStatus'] if 'ResourceStatus' in event else '',
+                event['ResourceStatusReason'] if 'ResourceStatusReason' in event else '',
+                event['LogicalResourceId'] if 'LogicalResourceId' in event else '',
+                event['PhysicalResourceId'] if 'PhysicalResourceId' in event else '',
+                event['ResourceType'] if 'ResourceType' in event else '')
 #            last_event_id = event['EventId']
         next_token = events_res['NextToken'] if 'NextToken' in events_res else None
         loop_events = next_token is not None
