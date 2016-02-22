@@ -36,7 +36,7 @@ def create_load_balancer(template,
                 GroupDescription="ELB SG",
                 SecurityGroupIngress=[
                     ec2.SecurityGroupRule(
-                        IpProtocol="HTTP",
+                        IpProtocol="tcp",
                         FromPort=elb_port,
                         ToPort=elb_port,
                         CidrIp="0.0.0.0/0"

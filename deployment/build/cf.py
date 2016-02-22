@@ -20,6 +20,7 @@ def _print_events(client, stack_id, from_event_id):
             last_event_id = events_res['StackEvents'][0]
         print_events = False
         for event in events_res['StackEvents']:
+            print event['EventId']
             if not print_events and event['EventId'] == last_event_id:
                 print_events = True
             if print_events:
@@ -53,7 +54,7 @@ def _wait_for_stack(client, stack_id, success_statuses, failure_statuses):
             return True
         if status in failure_statuses:
             print "time: {}, status: Stack creation failed".format(
-                status_res_stack['LastUpdatedTime']
+                status_res_stack['LastUpdatedTime'] if 'LastUpdatedTime' in status_res_stack else ''
             )
             return False
 
