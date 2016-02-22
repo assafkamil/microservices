@@ -45,6 +45,8 @@ def create_load_balancer(template,
             ))
         ]
 
+    security_group_refs = [Ref(sg) for sg in security_groups]
+
     listeners = [
         elb.Listener(
             LoadBalancerPort=instance_port,
@@ -71,7 +73,7 @@ def create_load_balancer(template,
         HealthCheck=health_check,
         Listeners=listeners,
         CrossZone=True,
-        SecurityGroups=security_groups,
+        SecurityGroups=security_group_refs,
         LoadBalancerName=name,
         Scheme="internet-facing",
     ))
@@ -95,7 +97,7 @@ def create_microservice_asg(template,
                             instance_type,
                             security_groups=[],
                             availability_zones=None,
-                            region='us-east',
+                            region='us-east-1',
                             load_balancer=None,
                             load_balancer_security_group=None,
                             min_size=1,
@@ -106,7 +108,7 @@ def create_microservice_asg(template,
         availability_zones = _all_az(region)
 
     if load_balancer:
-        security_groups.append(ec2.SecurityGroup(
+        security_groups.append(template.add_resource(ec2.SecurityGroup(
             "InstanceSecurityGroup",
             GroupDescription="Enable access from ELB",
             SecurityGroupIngress=[
@@ -117,7 +119,9 @@ def create_microservice_asg(template,
                     SourceSecurityGroupId=Ref(load_balancer_security_group)
                 ),
             ]
-        ))
+        )))
+
+    security_group_refs = [Ref(sg) for sg in security_groups]
 
     lc = template.add_resource(LaunchConfiguration(
         "LaunchConfiguration",
@@ -130,7 +134,7 @@ def create_microservice_asg(template,
         ])),
         ImageId=ami,
         KeyName=key_name,
-        SecurityGroups=security_groups,
+        SecurityGroups=security_group_refs,
         InstanceType=instance_type,
         IamInstanceProfile=instance_profile
     ))

@@ -31,7 +31,7 @@ def _print_events(client, stack_id, from_event_id):
                     event['PhysicalResourceId'],
                     event['ResourceType'])
             last_event_id = event['EventId']
-        next_token = events_res['NextToken']
+        next_token = events_res['NextToken'] if 'NextToken' in events_res else None
         loop_events = next_token is not None
     return last_event_id
 
