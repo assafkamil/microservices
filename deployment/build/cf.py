@@ -3,7 +3,7 @@ import boto3
 import time
 import argparse
 from troposphere import Template
-from build.micorservice import create_microservice_asg_with_elb
+from micorservice import create_microservice_asg_with_elb
 
 
 def _print_events(client, stack_id, from_event_id):
