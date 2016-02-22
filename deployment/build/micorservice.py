@@ -132,7 +132,7 @@ def create_microservice_asg(template,
             GroupDescription="Enable access from ELB",
             SecurityGroupIngress=[
                 ec2.SecurityGroupRule(
-                    IpProtocol=load_balancer.Listeners[0].Protocol,
+                    IpProtocol='tcp',
                     FromPort=load_balancer.Listeners[0].LoadBalancerPort,
                     ToPort=load_balancer.Listeners[0].InstancePort,
                     SourceSecurityGroupId=Ref(load_balancer_security_group)
