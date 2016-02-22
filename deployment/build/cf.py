@@ -12,7 +12,7 @@ def _print_events(client, stack_id, from_event_id):
     loop_events = True
 
     while loop_events:
-        events_res = client.describe_stack_events(stack_id, NextToken=next_token)
+        events_res = client.describe_stack_events(StackName=stack_id, NextToken=next_token)
         if not last_event_id:
             last_event_id = events_res['StackEvents'][0]
         print_events = False
