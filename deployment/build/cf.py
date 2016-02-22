@@ -7,8 +7,7 @@ from micorservice import create_microservice_asg_with_elb
 import sys
 
 
-def _print_events(client, stack_id, from_event_id):
-    last_event_id = from_event_id
+def _print_events(client, stack_id, displayed_events={}):
     next_token = None
     loop_events = True
 
@@ -17,14 +16,9 @@ def _print_events(client, stack_id, from_event_id):
             events_res = client.describe_stack_events(StackName=stack_id, NextToken=next_token)
         else:
             events_res = client.describe_stack_events(StackName=stack_id)
-#        if not last_event_id:
-#            last_event_id = events_res['StackEvents'][0]['EventId']
-#        print_events = False
         for event in events_res['StackEvents']:
-#            print event['EventId']
-#            if not print_events and event['EventId'] == last_event_id:
-#                print_events = True
-#            if print_events:
+            if event['EventId'] in displayed_events:
+                continue
             print "time: {}, status: {}, reason: {}, resource (logical): {}, resource (physical): {}, resource type: {}".format(
                 event['Timestamp'] if 'Timestamp' in event else '',
                 event['ResourceStatus'] if 'ResourceStatus' in event else '',
@@ -32,17 +26,17 @@ def _print_events(client, stack_id, from_event_id):
                 event['LogicalResourceId'] if 'LogicalResourceId' in event else '',
                 event['PhysicalResourceId'] if 'PhysicalResourceId' in event else '',
                 event['ResourceType'] if 'ResourceType' in event else '')
-#            last_event_id = event['EventId']
+            displayed_events[event['EventId']] = 1
         next_token = events_res['NextToken'] if 'NextToken' in events_res else None
         loop_events = next_token is not None
-    return last_event_id
+    return displayed_events
 
 
 def _wait_for_stack(client, stack_id, success_statuses, failure_statuses):
-    last_event_id = None
+    displayed_events = {}
 
     while True:
-        last_event_id = _print_events(client, stack_id, last_event_id)
+        displayed_events = _print_events(client, stack_id, displayed_events)
         status_res = client.describe_stacks(
             StackName=stack_id
         )
@@ -50,7 +44,7 @@ def _wait_for_stack(client, stack_id, success_statuses, failure_statuses):
         status = status_res_stack['StackStatus']
         if status in success_statuses:
             print "time: {}, status: Stack creation completed successfully".format(
-                status_res_stack['LastUpdatedTime']
+                status_res_stack['LastUpdatedTime'] if 'LastUpdatedTime' in status_res_stack else ''
             )
             return True
         if status in failure_statuses:
@@ -72,7 +66,7 @@ def create_stack(template, name, region, tags=[]):
         Tags=tags
     )
 
-    return _wait_for_stack(client,
+    res = _wait_for_stack(client,
                            response['StackId'],
                            ['CREATE_COMPLETE'],
                            ['CREATE_FAILED',
@@ -82,6 +76,7 @@ def create_stack(template, name, region, tags=[]):
                             'DELETE_IN_PROGRESS',
                             'DELETE_FAILED',
                             'DELETE_COMPLETE'])
+    return res, response['StackId']
 
 
 def update_stack_template(stack_name, template, region):
@@ -125,6 +120,16 @@ def update_stack(stack_name, template_body, region):
                             'UPDATE_ROLLBACK_COMPLETE'])
 
 
+def delete_stack(stack_name, region):
+    client = boto3.client('cloudformation', region_name=region)
+    client.delete_stack(StackName=stack_name)
+    return _wait_for_stack(client,
+                           stack_name,
+                           ['DELETE_COMPLETE'],
+                           ['DELETE_FAILED',
+                            'DELETE_SKIPPED'])
+
+
 def create_microservice_with_elb(name, ami, key_name, instance_profile, instance_type, region, vpc_id):
     t = Template()
     t.add_description("""\
@@ -157,8 +162,10 @@ if __name__ == "__main__":
     values = parser.parse_args()
 
     if values.create:
-        if not create_microservice_with_elb(
+        res, stack_name = create_microservice_with_elb(
             values.name, values.ami, values.keyname, values.profile, values.type, values.region, values.vpc
-        ):
+        )
+        if not res:
+            delete_stack(stack_name, values.region)
             sys.exit(-1)
 

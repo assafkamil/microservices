@@ -1,12 +1,9 @@
 import boto3
-from troposphere import Ref, Output
-from troposphere import FindInMap, GetAtt
 from troposphere import Base64, Join
-from troposphere import Parameter, Ref
-from troposphere.autoscaling import AutoScalingGroup, Tag
+from troposphere import Ref
+from troposphere.autoscaling import AutoScalingGroup
 from troposphere.autoscaling import LaunchConfiguration
 from troposphere.elasticloadbalancing import LoadBalancer
-from troposphere.policies import UpdatePolicy, AutoScalingRollingUpdate
 import troposphere.ec2 as ec2
 import troposphere.elasticloadbalancing as elb
 
@@ -27,8 +24,8 @@ def create_load_balancer(template,
         instance_port)
     health_check = elb.HealthCheck(
         Target=health_target,
-        HealthyThreshold="5",
-        UnhealthyThreshold="2",
+        HealthyThreshold="2",
+        UnhealthyThreshold="10",
         Interval="30",
         Timeout="15"
     )
@@ -59,8 +56,8 @@ def create_load_balancer(template,
 
     listeners = [
         elb.Listener(
-            LoadBalancerPort=instance_port,
-            InstancePort=elb_port,
+            LoadBalancerPort=elb_port,
+            InstancePort=instance_port,
             Protocol="HTTP",
             InstanceProtocol="HTTP"
         )]
