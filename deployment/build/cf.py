@@ -6,6 +6,7 @@ from troposphere import Template
 from micorservice import create_microservice_asg_with_elb
 import sys
 
+
 def _print_events(client, stack_id, from_event_id):
     last_event_id = from_event_id
     next_token = None
@@ -83,10 +84,10 @@ def create_stack(template, name, region, tags=[]):
                             'DELETE_COMPLETE'])
 
 
-def update_stack_template(stack_name, template):
+def update_stack_template(stack_name, template, region):
     json_update_template = json.loads(template.to_json())
 
-    client = boto3.client('cloudformation')
+    client = boto3.client('cloudformation', region_name=region)
     orig_template = client.get_template(
         StackName=stack_name
     )

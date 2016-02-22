@@ -104,7 +104,7 @@ def _all_az(region):
 def _get_vpc_subnets(vpc_id, region):
     ec2 = boto3.resource('ec2', region_name=region)
     vpc = ec2.Vpc(vpc_id)
-    return [subnet.id for subnet in vpc.subnets]
+    return [subnet.id for subnet in vpc.subnets.all()]
 
 
 def create_microservice_asg(template,
