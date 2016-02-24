@@ -87,7 +87,7 @@ def create_load_balancer(template,
     ))
 
     template.add_output(Output(
-        "URL",
+        "SYSTEM_HOST_URL",
         Description="Microservice endpoint",
         Value=Join("", ["http://", GetAtt(lb, "DNSName")])
     ))

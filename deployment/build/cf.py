@@ -149,6 +149,12 @@ def create_microservice_with_elb(name, ami, key_name, instance_profile, instance
     return create_stack(template=t, name=name, region=region)
 
 
+def get_stack_outputs(stack_name, region):
+    client = boto3.client('cloudformation', region_name=region)
+    res = client.describe_stacks(StackName=stack_name)
+    return res['Stacks'][0]['Outputs']
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--create", help="Create microservice stack")
@@ -159,6 +165,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--type", help="instance type")
     parser.add_argument("-r", "--region", help="region")
     parser.add_argument("-v", "--vpc", help="vpc id")
+    parser.add_argument("-o", "--output", help="output properties file")
     values = parser.parse_args()
 
     if values.create:
@@ -168,4 +175,9 @@ if __name__ == "__main__":
         if not res:
             delete_stack(stack_name, values.region)
             sys.exit(-1)
+        else:
+            outputs = get_stack_outputs(stack_name, values.region)
+            with open(values.output, "a") as myfile:
+                for output in outputs:
+                    myfile.write("{}={}\n".format(output['OutputKey'], output['OutputValue']))
 

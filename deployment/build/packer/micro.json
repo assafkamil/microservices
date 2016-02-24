@@ -1,0 +1,38 @@
+{
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "region": "us-east-1",
+      "instance_type": "t2.micro",
+      "ssh_username": "ubuntu",
+      "ami_name": "micro3 {{timestamp}}",
+      "source_ami": "ami-fce3c696",
+      "vpc_id": "vpc-e1bd2584",
+      "subnet_id": "subnet-31f3331a"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "micro3/build/libs/micro3-0.0.1.jar",
+      "destination": "/home/ubuntu/micro.jar"
+    },
+    {
+      "type": "shell",
+      "inline": ["sudo apt-add-repository -y ppa:ansible/ansible", "sudo apt-get update", "sudo apt-get install -y ansible", "sudo apt-get install -y git", "sudo apt-get install -y python-pip"]
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "deployment/ansible/microservice/app.yml",
+      "role_paths": [
+        "deployment/ansible/microservice/roles/Stouts.supervisor",
+        "deployment/ansible/microservice/roles/redouane.java",
+        "deployment/ansible/microservice/roles/tumf.newrelic"
+      ],
+      "extra_arguments": [
+        "--extra-vars",
+        "\"port=8080 active_profile=production jar=/home/ubuntu/micro.jar newrelic_license_key=6e90092241cead6c8eb58906436eed910e58ab29\""
+      ]
+    }
+  ]
+}
