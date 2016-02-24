@@ -1,5 +1,5 @@
 import boto3
-from troposphere import Base64, Join
+from troposphere import Base64, Join, Output, GetAtt
 from troposphere import Ref
 from troposphere.autoscaling import AutoScalingGroup
 from troposphere.autoscaling import LaunchConfiguration
@@ -84,6 +84,12 @@ def create_load_balancer(template,
         LoadBalancerName=name,
         Scheme="internet-facing",
         Subnets=subnets
+    ))
+
+    template.add_output(Output(
+        "URL",
+        Description="Microservice endpoint",
+        Value=Join("", ["http://", GetAtt(lb, "DNSName")])
     ))
 
     return {
