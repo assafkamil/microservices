@@ -13,7 +13,7 @@
               autostart: true
               autorestart: true
         newrelic_labels:
-            - Environment: {{ newrelic_env }}
-            - Microservice: {{ microservice_name }}
+            - Environment: "{{ newrelic_env }}"
+            - Microservice: "{{ microservice_name }}"
         newrelic_license_key: 6e90092241cead6c8eb58906436eed910e58ab29
         newrelic_service_state: started
