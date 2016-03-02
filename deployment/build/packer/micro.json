@@ -5,7 +5,7 @@
       "region": "us-east-1",
       "instance_type": "t2.micro",
       "ssh_username": "ubuntu",
-      "ami_name": "micro3 {{timestamp}}",
+      "ami_name": "{{user `microservice`}} {{timestamp}}",
       "source_ami": "ami-fce3c696",
       "vpc_id": "vpc-e1bd2584",
       "subnet_id": "subnet-31f3331a"
@@ -14,7 +14,7 @@
   "provisioners": [
     {
       "type": "file",
-      "source": "micro3/build/libs/micro3-0.0.1.jar",
+      "source": "{{user `microservice`}}/build/libs/{{user `microservice`}}-0.0.1.jar",
       "destination": "/home/ubuntu/micro.jar"
     },
     {
