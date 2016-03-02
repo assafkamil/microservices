@@ -31,7 +31,7 @@
       ],
       "extra_arguments": [
         "--extra-vars",
-        "\"port=8080 active_profile=production jar=/home/ubuntu/micro.jar newrelic_license_key=6e90092241cead6c8eb58906436eed910e58ab29\""
+        "\"port=8080 active_profile={{user `active_profile`}} newrelic_env={{user `newrelic_env`}} newrelic_env={{user `microservice_name`}} jar=/home/ubuntu/micro.jar newrelic_license_key=6e90092241cead6c8eb58906436eed910e58ab29\""
       ]
     }
   ]
