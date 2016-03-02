@@ -1,15 +1,20 @@
 - hosts: all
   become: yes
   become_method: sudo
+
   roles:
         - redouane.java
         - Stouts.supervisor
         - tumf.newrelic
 
+  post_tasks:
+        - name: add new relic labels
+          shell: echo "labels=Environment:{{ newrelic_env }};Microservice:{{ microservice_name }}" > /etc/newrelic/nrsysmond.cfg
+
   vars:
         supervisor_tasks:
             - name: springboot
-              command: java -Dserver.port={{ port }} -Dspring.profiles.active={{ active_profile }} -Dnewrelic.config.process_host.display_name={{ microservice_name }} -Dnewrelic.environment={{ newrelic_env }} -Dnewrelic.config.labels=“labels=Environment:{{ newrelic_env }};Microservice:{{ microservice_name }}” —jar {{ jar }}
+              command: java -Dserver.port={{ port }} -Dspring.profiles.active={{ active_profile }} -Dnewrelic.config.process_host.display_name={{ microservice_name }} -Dnewrelic.environment={{ newrelic_env }} -Dnewrelic.config.labels="labels=Environment:{{ newrelic_env }};Microservice:{{ microservice_name }}" —jar {{ jar }}
               autostart: true
               autorestart: true
         newrelic_labels:
