@@ -1,0 +1,9 @@
+vault:
+  bucket: vault
+  file: dev/vault.json
+
+
+spring:
+  cloud:
+    config:
+      failFast: true

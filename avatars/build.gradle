@@ -1,0 +1,7 @@
+version =  "0.0.1"
+
+ext.projectType = "microservice"
+
+dependencies {
+    compile("com.timgroup:jgravatar:1.0")
+}
