@@ -1,4 +1,4 @@
-package com.samples.microservices.avatars.exceptions;
+package com.samples.microservices.avatars.api.exceptions;
 
 public class AvatarNotFound extends Exception {
     private String avatar;

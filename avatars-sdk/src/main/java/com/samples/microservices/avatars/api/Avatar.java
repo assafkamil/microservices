@@ -1,4 +1,4 @@
-package com.samples.microservices.avatars.model;
+package com.samples.microservices.avatars.api;
 
 public class Avatar {
     private String user;

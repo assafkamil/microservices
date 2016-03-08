@@ -1,7 +1,7 @@
 package com.samples.microservices.avatars.services;
 
-import com.samples.microservices.avatars.exceptions.AvatarNotFound;
-import com.samples.microservices.avatars.model.Avatar;
+import com.samples.microservices.avatars.api.Avatar;
+import com.samples.microservices.avatars.api.exceptions.AvatarNotFound;
 import com.timgroup.jgravatar.Gravatar;
 import com.timgroup.jgravatar.GravatarRating;
 import org.springframework.stereotype.Service;

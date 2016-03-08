@@ -1,7 +1,7 @@
 package com.samples.microservices.avatars.controllers;
 
-import com.samples.microservices.avatars.exceptions.AvatarNotFound;
-import com.samples.microservices.avatars.model.Avatar;
+import com.samples.microservices.avatars.api.Avatar;
+import com.samples.microservices.avatars.api.exceptions.AvatarNotFound;
 import com.samples.microservices.avatars.services.AvatarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

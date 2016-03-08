@@ -12,4 +12,5 @@ include 'configserver'
 include 'logprocessor'
 include 'micro3'
 include 'avatars'
+include 'avatars-sdk'
 
