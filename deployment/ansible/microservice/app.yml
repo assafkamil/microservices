@@ -9,7 +9,7 @@
 
   post_tasks:
         - name: add new relic labels
-          shell: echo "labels=Environment:{{ newrelic_env }};Microservice:{{ microservice_name }}" > /etc/newrelic/nrsysmond.cfg
+          shell: echo "labels=Environment:{{ newrelic_env }};Microservice:{{ microservice_name }}" >> /etc/newrelic/nrsysmond.cfg
 
   vars:
         supervisor_tasks:

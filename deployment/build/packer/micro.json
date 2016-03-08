@@ -23,12 +23,8 @@
     },
     {
       "type": "ansible-local",
-      "playbook_file": "deployment/ansible/microservice/app.yml",
-      "role_paths": [
-        "deployment/ansible/microservice/roles/Stouts.supervisor",
-        "deployment/ansible/microservice/roles/redouane.java",
-        "deployment/ansible/microservice/roles/tumf.newrelic"
-      ],
+      "playbook_dir": "deployment/ansible/microservice",
+      "playbook_file": "app.yml",
       "extra_arguments": [
         "--extra-vars",
         "\"port=8080 active_profile={{user `active_profile`}} newrelic_env={{user `newrelic_env`}} microservice_name={{user `microservice`}} jar=/home/ubuntu/micro.jar newrelic_license_key=6e90092241cead6c8eb58906436eed910e58ab29\""
