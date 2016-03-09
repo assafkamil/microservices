@@ -3,7 +3,7 @@ spring: 
     config: 
       server: 
         git: 
-          uri: file:/Users/assafkamil/projects/wiseman/qwilt/microservices/configgit  
+          uri: https://git-codecommit.us-east-1.amazonaws.com/v1/repos/microservices
 
 server: 
   port: 8888

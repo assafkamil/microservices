@@ -4,6 +4,7 @@ import time
 import argparse
 from troposphere import Template
 from micorservice import create_microservice_asg_with_elb
+from env import *
 import sys
 
 
@@ -160,18 +161,15 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--create", help="Create microservice stack")
     parser.add_argument("-n", "--name", help="name")
     parser.add_argument("-k", "--keyname", help="keyname")
-    parser.add_argument("-a", "--ami", help="ami")
-    parser.add_argument("-p", "--profile", help="instance profile")
-    parser.add_argument("-t", "--type", help="instance type")
+    parser.add_argument("-s", "--services", help="Json array for services with {ami, profile, instance_type}")
     parser.add_argument("-r", "--region", help="region")
     parser.add_argument("-v", "--vpc", help="vpc id")
     parser.add_argument("-o", "--output", help="output properties file")
     values = parser.parse_args()
 
     if values.create:
-        res, stack_name = create_microservice_with_elb(
-            values.name, values.ami, values.keyname, values.profile, values.type, values.region, values.vpc
-        )
+        t = create_env(json.loads(values.services), values.keyname, values.region, values.vpc)
+        res, stack_name = create_stack(template=t, name=values.name, region=values.region)
         if not res:
             delete_stack(stack_name, values.region)
             sys.exit(-1)

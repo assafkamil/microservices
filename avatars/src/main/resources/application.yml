@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: avatars
+
+server:
+  port: 8060
+
+endpoints:
+  beans:
+    sensitive: false

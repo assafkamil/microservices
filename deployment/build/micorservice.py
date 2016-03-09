@@ -1,11 +1,13 @@
 import boto3
-from troposphere import Base64, Join, Output, GetAtt
+from troposphere import Base64, Join, Output, GetAtt, UpdatePolicy
 from troposphere import Ref
 from troposphere.autoscaling import AutoScalingGroup
 from troposphere.autoscaling import LaunchConfiguration
 from troposphere.elasticloadbalancing import LoadBalancer
 import troposphere.ec2 as ec2
 import troposphere.elasticloadbalancing as elb
+from troposphere.policies import CreationPolicy, ResourceSignal, AutoScalingRollingUpdate
+from troposphere.route53 import HostedZone, HostedZoneVPCs, RecordSetType, AliasTarget
 
 
 def create_load_balancer(template,
@@ -33,7 +35,7 @@ def create_load_balancer(template,
     if not security_groups:
         security_groups = [
             template.add_resource(ec2.SecurityGroup(
-                "ELBSecurityGroup",
+                "ELBSecurityGroup" + name,
                 GroupDescription="ELB SG",
                 SecurityGroupIngress=[
                     ec2.SecurityGroupRule(
@@ -87,7 +89,7 @@ def create_load_balancer(template,
     ))
 
     template.add_output(Output(
-        "SYSTEM_HOST_URL",
+        "HostUrl" + name,
         Description="Microservice endpoint",
         Value=Join("", ["http://", GetAtt(lb, "DNSName")])
     ))
@@ -111,11 +113,13 @@ def _get_vpc_subnets(vpc_id, region):
 
 
 def create_microservice_asg(template,
+                            name,
                             ami,
                             key_name,
                             instance_profile,
                             instance_type,
                             vpc_id,
+                            instance_port=8080,
                             subnets=None,
                             security_groups=[],
                             availability_zones=None,
@@ -125,13 +129,21 @@ def create_microservice_asg(template,
                             min_size=1,
                             max_size=1,
                             desired_capacity=None,
+                            creation_policy=CreationPolicy(ResourceSignal()),
+                            update_policy=UpdatePolicy(
+                                AutoScalingRollingUpdate=AutoScalingRollingUpdate(
+                                    MinInstancesInService=1,
+                                    WaitOnResourceSignals=True
+                                )
+                            ),
+                            depends_on=None,
                             tags=[]):
     if not availability_zones:
         availability_zones = _all_az(region)
 
     if load_balancer:
         security_groups.append(template.add_resource(ec2.SecurityGroup(
-            "InstanceSecurityGroup",
+            "InstanceSecurityGroup" + name,
             GroupDescription="Enable access from ELB",
             SecurityGroupIngress=[
                 ec2.SecurityGroupRule(
@@ -147,9 +159,16 @@ def create_microservice_asg(template,
     security_group_refs = [Ref(sg) for sg in security_groups]
 
     lc = template.add_resource(LaunchConfiguration(
-        "LaunchConfiguration",
+        "LaunchConfiguration" + name,
         UserData=Base64(Join('', [
             "#!/bin/bash\n",
+            "# wait until microservice is ready/n",
+            "until $(curl --output /dev/null --silent --head --fail http://localhost:{}/health); do\n".format(
+                instance_port),
+            "    printf '.'\n",
+            "    sleep 5\n",
+            "done"
+            "# signal asg"
             "cfn-signal -e 0",
             "    --resource AutoscalingGroup",
             "    --stack ", Ref("AWS::StackName"),
@@ -168,8 +187,8 @@ def create_microservice_asg(template,
     if not subnets:
         subnets = _get_vpc_subnets(vpc_id, region)
 
-    asg = template.add_resource(AutoScalingGroup(
-        "AutoscalingGroup",
+    asg = AutoScalingGroup(
+        "AutoscalingGroup" + name,
         DesiredCapacity=desired_capacity,
         Tags=tags,
         LaunchConfigurationName=Ref(lc),
@@ -179,8 +198,14 @@ def create_microservice_asg(template,
         HealthCheckGracePeriod=60,
         AvailabilityZones=availability_zones,
         HealthCheckType="EC2" if not load_balancer else "ELB",
-        VPCZoneIdentifier=subnets
-    ))
+        VPCZoneIdentifier=subnets,
+        CreationPolicy=creation_policy,
+        UpdatePolicy=update_policy
+    )
+    if depends_on:
+        asg.DependsOn = Ref(depends_on)
+
+    asg = template.add_resource(asg)
 
     return {
         'asg': asg,
@@ -194,7 +219,7 @@ def create_microservice_asg_with_elb(template,
                                      key_name,
                                      instance_profile,
                                      instance_type,
-                                     elb_name,
+                                     name,
                                      vpc_id,
                                      subnets=None,
                                      security_groups=[],
@@ -207,11 +232,19 @@ def create_microservice_asg_with_elb(template,
                                      min_size=1,
                                      max_size=1,
                                      desired_capacity=None,
+                                     creation_policy=CreationPolicy(ResourceSignal()),
+                                     update_policy=UpdatePolicy(
+                                         AutoScalingRollingUpdate=AutoScalingRollingUpdate(
+                                             MinInstancesInService=1,
+                                             WaitOnResourceSignals=True
+                                         )
+                                     ),
+                                     depends_on=None,
                                      tags=[]):
     if not subnets:
         subnets = _get_vpc_subnets(vpc_id, region)
 
-    lb_res = create_load_balancer(template, elb_name,
+    lb_res = create_load_balancer(template, name,
                                   vpc_id=vpc_id,
                                   subnets=subnets,
                                   region=region,
@@ -222,10 +255,12 @@ def create_microservice_asg_with_elb(template,
                                   ssl_cert=ssl_cert)
 
     asg_res = create_microservice_asg(template,
+                                      name,
                                       ami,
                                       key_name,
                                       instance_profile,
                                       instance_type,
+                                      instance_port=instance_port,
                                       vpc_id=vpc_id,
                                       subnets=subnets,
                                       security_groups=security_groups,
@@ -236,7 +271,41 @@ def create_microservice_asg_with_elb(template,
                                       min_size=min_size,
                                       max_size=max_size,
                                       desired_capacity=desired_capacity,
+                                      creation_policy=creation_policy,
+                                      update_policy=update_policy,
+                                      depends_on=depends_on,
                                       tags=tags)
 
     asg_res.update(lb_res)
     return asg_res
+
+
+def create_private_dns(template, name, vpc_id, region):
+    hosted_zone_name = name + ".internal"
+    hosted_zone = template.add_resource(HostedZone(
+        "HostedZone",
+        Name=hosted_zone_name,
+        VPCs=[HostedZoneVPCs(VPCId=vpc_id, VPCRegion=region)]
+    ))
+
+    template.add_output(Output(
+        "HostedZone",
+        Description="Hosted zone for internal access",
+        Value=hosted_zone_name
+    ))
+
+    return hosted_zone
+
+
+def create_private_dns_elb(template, hosted_zone, name, elb, cf_resource_name):
+    dns_record = template.add_resource(RecordSetType(
+        cf_resource_name,
+        HostedZoneName=Join("", [Ref(hosted_zone), "."]),
+        Comment="DNS name for my instance.",
+        Name=name,
+        Type="A",
+        AliasTarget=AliasTarget(Ref(hosted_zone), GetAtt(Ref(elb), "CanonicalHostedZoneName")),
+        ResourceRecords=[GetAtt("Ec2Instance", "PublicIp")]
+    ))
+
+    return dns_record

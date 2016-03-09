@@ -14,7 +14,7 @@
   vars:
         supervisor_tasks:
             - name: springboot
-              command: java -Dserver.port={{ port }} -Dspring.profiles.active={{ active_profile }} -Dnewrelic.config.process_host.display_name={{ microservice_name }} -Dnewrelic.environment={{ newrelic_env }} -Dnewrelic.config.labels="labels=Environment:{{ newrelic_env }};Microservice:{{ microservice_name }}" —jar {{ jar }}
+              command: java -Dserver.port={{ port }} -Dspring.profiles.active={{ active_profile }} -Dspring.cloud.config.uri={{config_uri}} -Dnewrelic.config.process_host.display_name={{ microservice_name }} -Dnewrelic.environment={{ newrelic_env }} -Dnewrelic.config.labels="labels=Environment:{{ newrelic_env }};Microservice:{{ microservice_name }}" —jar {{ jar }}
               autostart: true
               autorestart: true
         newrelic_license_key: 6e90092241cead6c8eb58906436eed910e58ab29
