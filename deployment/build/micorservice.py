@@ -145,6 +145,7 @@ def create_microservice_asg(template,
                             creation_policy=None,
                             update_policy=None,
                             depends_on=None,
+                            metadata=None,
                             tags=[]):
     if not availability_zones:
         availability_zones = _all_az(region)
@@ -171,10 +172,13 @@ def create_microservice_asg(template,
 
     security_group_refs = [Ref(sg) for sg in security_groups]
 
-    lc = template.add_resource(LaunchConfiguration(
+    asg_name = "AutoscalingGroup" + name
+
+    lc = LaunchConfiguration(
         "LaunchConfiguration" + name,
         UserData=Base64(Join('', [
-            "#!/bin/bash\n",
+            "#!/bin/bash -ex\n",
+            "/usr/local/bin/cfn-init --stack ", Ref("AWS::StackName"), " --resource {}".format(asg_name), " --region ", Ref("AWS::Region"), "\n",
             "# wait until microservice is ready/n",
             "until $(curl --output /dev/null --silent --head --fail http://localhost:{}/health); do\n".format(
                 instance_port),
@@ -183,7 +187,7 @@ def create_microservice_asg(template,
             "done"
             "# signal asg"
             "cfn-signal -e 0",
-            "    --resource AutoscalingGroup",
+            "    --resource {}".format(asg_name),
             "    --stack ", Ref("AWS::StackName"),
             "    --region ", Ref("AWS::Region"), "\n"
         ])),
@@ -192,7 +196,10 @@ def create_microservice_asg(template,
         SecurityGroups=security_group_refs,
         InstanceType=instance_type,
         IamInstanceProfile=instance_profile
-    ))
+    )
+    if metadata:
+        lc.Metadata = metadata
+    lc = template.add_resource(lc)
 
     if not desired_capacity:
         desired_capacity = max_size
@@ -201,7 +208,7 @@ def create_microservice_asg(template,
         subnets = _get_vpc_subnets(vpc_id, region)
 
     asg = AutoScalingGroup(
-        "AutoscalingGroup" + name,
+        asg_name,
         DesiredCapacity=desired_capacity,
         Tags=tags,
         LaunchConfigurationName=Ref(lc),
@@ -248,6 +255,7 @@ def create_microservice_asg_with_elb(template,
                                      creation_policy=None,
                                      update_policy=None,
                                      depends_on=None,
+                                     metadata=None,
                                      tags=[]):
     if not subnets:
         subnets = _get_vpc_subnets(vpc_id, region)
@@ -282,6 +290,7 @@ def create_microservice_asg_with_elb(template,
                                       creation_policy=creation_policy,
                                       update_policy=update_policy,
                                       depends_on=depends_on,
+                                      metadata=metadata,
                                       tags=tags)
 
     asg_res.update(lb_res)

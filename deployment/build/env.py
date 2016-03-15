@@ -1,4 +1,6 @@
 from troposphere import Template
+from troposphere.autoscaling import Metadata
+from troposphere.cloudformation import InitConfig, Init
 from micorservice import *
 
 
@@ -10,7 +12,30 @@ def create_env(name, services, key_name, region, vpc_id):
     # creating private hosted zone (dns)
     hosted_zone = create_private_dns(t, name, vpc_id, region)
 
+    # creating codecommit repo
+    codecommit = boto3.client('codecommit')
+    repo_res = codecommit.get_repository(
+        repositoryName=name
+    )
+    if not repo_res:
+        repo_res = codecommit.create_repository(
+            repositoryName=name
+        )
+    repo = repo_res['repositoryMetadata']['cloneUrlHttp']
+
     # creating config service
+    metadata = Metadata(
+        Init({
+            "config": InitConfig(
+                commands={
+                    "setrepoenv": {
+                        "command": "echo \"SPRING_CLOUD_CONFIG_SERVER_GIT_URI={}\" >> /etc/environment".format(repo)
+                    }
+                }
+            )
+        }),
+    )
+
     config_service = create_microservice_asg_with_elb(
         t,
         services['config']['ami'],
@@ -23,7 +48,8 @@ def create_env(name, services, key_name, region, vpc_id):
         instance_port=8888,
         region=region,
         min_size=2,
-        max_size=2
+        max_size=2,
+        metadata=metadata
     )
 
     create_private_dns_elb(t, hosted_zone, 'config-service', config_service['elb'], 'DnsRecordConfig')
@@ -48,4 +74,3 @@ def create_env(name, services, key_name, region, vpc_id):
     '''
 
     return t
-

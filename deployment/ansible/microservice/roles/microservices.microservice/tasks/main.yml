@@ -1,1 +1,16 @@
 ---
+
+- name: Installs
+  apt: name=python-setuptools
+
+- name: Creates AWS CF tools directory
+  file: path=aws-cfn-bootstrap-latest state=directory
+
+- name: Get and open tools
+  shell: curl https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz | tar xz -C aws-cfn-bootstrap-latest --strip-components 1
+
+- name: Install scripts
+  shell: easy_install aws-cfn-bootstrap-latest
+
+- name: Create link to hup
+  shell: ln -s aws-cfn-bootstrap-latest/init/ubuntu/cfn-hup /etc/init.d/cfn-hup
