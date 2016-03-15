@@ -2,13 +2,3 @@
 
 - name: add new relic labels
   shell: echo "labels=Environment:{{ newrelic_env }};Microservice:{{ microservice_name }}" >> /etc/newrelic/nrsysmond.cfg
-
-- name: springboot command with configservice
-  set_fact:
-    springboot_command: "{{ springboot_command_base }} -Dspring.cloud.config.uri={{config_uri}}"
-  when: config_uri is defined
-
-- name: springboot command without configservice
-  set_fact:
-    springboot_command: "{{ springboot_command_base }}"
-  when: config_uri is undefined

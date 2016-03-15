@@ -3,7 +3,7 @@ spring: 
     config: 
       server: 
         git: 
-          uri: https://configservice.${private.domain} https://git-codecommit.us-east-1.amazonaws.com/v1/repos/microservices
+          uri: https://config-repo.${private.domain}
 
 server: 
   port: 8888

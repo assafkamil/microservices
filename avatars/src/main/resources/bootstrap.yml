@@ -6,4 +6,5 @@ vault:
 spring:
   cloud:
     config:
+      uri: http://config-service.${private.domain}
       failFast: true

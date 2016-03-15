@@ -26,7 +26,7 @@ def create_env(name, services, key_name, region, vpc_id):
         max_size=2
     )
 
-    create_private_dns_elb(t, hosted_zone, 'configservice', config_service['elb'], 'DnsRecordConfig')
+    create_private_dns_elb(t, hosted_zone, 'config-service', config_service['elb'], 'DnsRecordConfig')
 
     # creating eureaka service
 

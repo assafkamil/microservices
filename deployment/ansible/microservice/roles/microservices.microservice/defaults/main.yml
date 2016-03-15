@@ -1,3 +1,3 @@
 ---
 
-springboot_command_base: "java -Dserver.port={{ port }} -Dspring.profiles.active={{ active_profile }} -Dnewrelic.config.process_host.display_name={{ microservice_name }} -Dnewrelic.environment={{ newrelic_env }} -Dnewrelic.config.labels=\"labels=Environment:{{ newrelic_env }};Microservice:{{ microservice_name }}\" —jar {{ jar }}"
+springboot_command: "java -Dserver.port={{ port }} -Dspring.profiles.active={{ active_profile }} -Dnewrelic.config.process_host.display_name={{ microservice_name }} -Dnewrelic.environment={{ newrelic_env }} -Dnewrelic.config.labels=\"labels=Environment:{{ newrelic_env }};Microservice:{{ microservice_name }}\" —jar {{ jar }}"
