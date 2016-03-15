@@ -3,6 +3,7 @@ import boto3
 import time
 import argparse
 from troposphere import Template
+from build.services import create_services
 from micorservice import create_microservice_asg_with_elb
 from env import *
 import sys
@@ -167,15 +168,20 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output", help="output properties file")
     values = parser.parse_args()
 
-    if values.create:
+    t = None
+    if values.create == 'microservice':
         t = create_env(json.loads(values.services), values.keyname, values.region, values.vpc)
-        res, stack_name = create_stack(template=t, name=values.name, region=values.region)
-        if not res:
-            delete_stack(stack_name, values.region)
-            sys.exit(-1)
-        else:
-            outputs = get_stack_outputs(stack_name, values.region)
-            with open(values.output, "a") as myfile:
-                for output in outputs:
-                    myfile.write("{}={}\n".format(output['OutputKey'], output['OutputValue']))
+    elif values.create == 'services':
+        t = create_services()
+
+    res, stack_name = create_stack(template=t, name=values.name, region=values.region)
+    if not res:
+        delete_stack(stack_name, values.region)
+        sys.exit(-1)
+    else:
+        outputs = get_stack_outputs(stack_name, values.region)
+        with open(values.output, "a") as myfile:
+            for output in outputs:
+                myfile.write("{}={}\n".format(output['OutputKey'], output['OutputValue']))
+
 
