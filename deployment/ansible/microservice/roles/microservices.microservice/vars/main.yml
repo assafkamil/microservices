@@ -5,7 +5,7 @@ supervisor_tasks:
     command: java -Dserver.port={{ port }} -Dspring.profiles.active={{ active_profile }} -Dspring.cloud.config.uri={{config_uri}} -Dnewrelic.config.process_host.display_name={{ microservice_name }} -Dnewrelic.environment={{ newrelic_env }} -Dnewrelic.config.labels="labels=Environment:{{ newrelic_env }};Microservice:{{ microservice_name }}" —jar {{ jar }}
     autostart: true
     autorestart: true
-newrelic_license_key: {{ new_relic_key }}
+newrelic_license_key: "{{ new_relic_key }}"
 newrelic_service_state: started
 environment_config:
-  PRIVATE_DOMAIN: {{ private_domain }}
+  PRIVATE_DOMAIN: "{{ private_domain }}"
