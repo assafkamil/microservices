@@ -13,10 +13,10 @@
   file: path=/tmp/git state=directory
 
 - name: fix ubuntu git https handshake bug 1
-  shell: apt-get source git chdir=/tmp/git
+  shell: apt-get source -y git chdir=/tmp/git
 
 - name: fix ubuntu git https handshake bug 2
-  shell: apt-get build-dep git chdir=/tmp/git
+  shell: apt-get build-dep -y git chdir=/tmp/git
 
 - name: fix ubuntu git https handshake bug 3
   shell: dpkg-source -x git_1.9.1-1ubuntu0.2.dsc chdir=/tmp/git
