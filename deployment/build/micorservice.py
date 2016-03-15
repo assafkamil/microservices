@@ -112,6 +112,19 @@ def _get_vpc_subnets(vpc_id, region):
     return [subnet.id for subnet in vpc.subnets.all()]
 
 
+def _default_creation_policy(template, name):
+    return CreationPolicy(ResourceSignal(name + 'asg_signal'))
+
+
+def _default_update_policy(template, name):
+    return UpdatePolicy(
+        AutoScalingRollingUpdate=AutoScalingRollingUpdate(
+            MinInstancesInService=1,
+            WaitOnResourceSignals=True
+        )
+    )
+
+
 def create_microservice_asg(template,
                             name,
                             ami,
@@ -129,13 +142,8 @@ def create_microservice_asg(template,
                             min_size=1,
                             max_size=1,
                             desired_capacity=None,
-                            creation_policy=CreationPolicy(ResourceSignal()),
-                            update_policy=UpdatePolicy(
-                                AutoScalingRollingUpdate=AutoScalingRollingUpdate(
-                                    MinInstancesInService=1,
-                                    WaitOnResourceSignals=True
-                                )
-                            ),
+                            creation_policy=None,
+                            update_policy=None,
                             depends_on=None,
                             tags=[]):
     if not availability_zones:
@@ -155,6 +163,11 @@ def create_microservice_asg(template,
             ],
             VpcId=vpc_id
         )))
+
+    if not creation_policy:
+        creation_policy = _default_creation_policy(template, name)
+    if not update_policy:
+        update_policy = _default_update_policy(template, name)
 
     security_group_refs = [Ref(sg) for sg in security_groups]
 
@@ -232,13 +245,8 @@ def create_microservice_asg_with_elb(template,
                                      min_size=1,
                                      max_size=1,
                                      desired_capacity=None,
-                                     creation_policy=CreationPolicy(ResourceSignal()),
-                                     update_policy=UpdatePolicy(
-                                         AutoScalingRollingUpdate=AutoScalingRollingUpdate(
-                                             MinInstancesInService=1,
-                                             WaitOnResourceSignals=True
-                                         )
-                                     ),
+                                     creation_policy=None,
+                                     update_policy=None,
                                      depends_on=None,
                                      tags=[]):
     if not subnets:
