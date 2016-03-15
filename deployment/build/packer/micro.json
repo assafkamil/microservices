@@ -27,7 +27,7 @@
       "playbook_file": "app.yml",
       "extra_arguments": [
         "--extra-vars",
-        "\"port={{user `port`}} active_profile={{user `active_profile`}} config_uri={{user `config_uri`}} newrelic_env={{user `newrelic_env`}} microservice_name={{user `microservice`}} jar=/home/ubuntu/micro.jar newrelic_license_key=6e90092241cead6c8eb58906436eed910e58ab29\""
+        "\"port={{user `port`}} active_profile={{user `active_profile`}} config_uri={{user `config_uri`}} newrelic_env={{user `newrelic_env`}} microservice_name={{user `microservice`}} jar=/home/ubuntu/micro.jar newrelic_license_key={{user `newrelic_key`}} private_domain={{user `private_domain`}}\""
       ]
     }
   ]

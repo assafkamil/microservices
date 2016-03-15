@@ -26,11 +26,12 @@ def create_env(name, services, key_name, region, vpc_id):
         max_size=2
     )
 
-    create_private_dns_elb(t, hosted_zone, 'config', config_service['elb'], 'DnsRecordConfig')
+    create_private_dns_elb(t, hosted_zone, 'configservice', config_service['elb'], 'DnsRecordConfig')
 
     # creating eureaka service
 
     # creating avatars service
+    '''
     avatars_service = create_microservice_asg_with_elb(
         t,
         services['avatars']['ami'],
@@ -44,6 +45,7 @@ def create_env(name, services, key_name, region, vpc_id):
         max_size=2,
         depends_on=config_service['asg']
     )
+    '''
 
     return t
 

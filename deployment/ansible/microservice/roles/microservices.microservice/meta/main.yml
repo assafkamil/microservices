@@ -4,3 +4,4 @@ dependencies:
   - redouane.java
   - Stouts.supervisor
   - tumf.newrelic
+  - jtyr.environment

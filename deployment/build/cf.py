@@ -1,10 +1,7 @@
 import json
-import boto3
 import time
 import argparse
-from troposphere import Template
 from services import *
-from micorservice import create_microservice_asg_with_elb
 from env import *
 import sys
 
@@ -34,50 +31,86 @@ def _print_events(client, stack_id, displayed_events={}):
     return displayed_events
 
 
-def _wait_for_stack(client, stack_id, success_statuses, failure_statuses):
+def _wait_for_stack(client, stack_id, success_statuses, failure_statuses, sqs_client=None, sqs_queue=None):
     displayed_events = {}
-
     while True:
-        displayed_events = _print_events(client, stack_id, displayed_events)
-        status_res = client.describe_stacks(
-            StackName=stack_id
-        )
-        status_res_stack = status_res['Stacks'][0]
-        status = status_res_stack['StackStatus']
-        if status in success_statuses:
-            print "time: {}, status: Stack creation completed successfully".format(
-                status_res_stack['LastUpdatedTime'] if 'LastUpdatedTime' in status_res_stack else ''
+        if not sqs_client:
+            displayed_events = _print_events(client, stack_id, displayed_events)
+            status_res = client.describe_stacks(
+                StackName=stack_id
             )
-            return True
-        if status in failure_statuses:
-            print "time: {}, status: Stack creation failed".format(
-                status_res_stack['LastUpdatedTime'] if 'LastUpdatedTime' in status_res_stack else ''
+            status_res_stack = status_res['Stacks'][0]
+            status = status_res_stack['StackStatus']
+            if status in success_statuses:
+                print "time: {}, status: Stack creation completed successfully".format(
+                    status_res_stack['LastUpdatedTime'] if 'LastUpdatedTime' in status_res_stack else ''
+                )
+                return True
+            if status in failure_statuses:
+                print "time: {}, status: Stack creation failed".format(
+                    status_res_stack['LastUpdatedTime'] if 'LastUpdatedTime' in status_res_stack else ''
+                )
+                return False
+        else:
+            res = sqs_client.receive_message(
+                QueueUrl=sqs_queue,
+                WaitTimeSeconds=20
             )
-            return False
+            for msg in res['Messages']:
+                print msg['Body']
+                for attr in msg['MessageAttributes']:
+                    print str(attr)
+                client.delete_message(
+                    QueueUrl=sqs_queue,
+                    ReceiptHandle=msg['ReceiptHandle']
+                )
 
         time.sleep(30)
 
 
-def create_stack(template, name, region, tags=[]):
-    stack_json = template.to_json()
+def _cf_sns_sqs(client):
+    response = client.describe_stacks(
+        StackName='services'
+    )
+    if not response:
+        return None
+    snsarn = None
+    sqsarn = None
+    for output in response['Stacks'][0]['Outputs']:
+        if output['OutputKey'] == 'sns':
+            snsarn = output['OutputValue']
+        if output['OutputKey'] == 'queueurl':
+            sqsarn = output['OutputValue']
+    return {
+        'sns': snsarn,
+        'sqs': sqsarn
+    }
 
+
+def create_stack(template, name, region, tags=[]):
     client = boto3.client('cloudformation', region_name=region)
+    sns_sqs = _cf_sns_sqs(client)
+
+    stack_json = template.to_json()
     response = client.create_stack(
         StackName=name,
         TemplateBody=stack_json,
+        NotificationARNs=[sns_sqs['sns']] if sns_sqs else [],
         Tags=tags
     )
 
     res = _wait_for_stack(client,
-                           response['StackId'],
-                           ['CREATE_COMPLETE'],
-                           ['CREATE_FAILED',
-                            'ROLLBACK_IN_PROGRESS',
-                            'ROLLBACK_FAILED',
-                            'ROLLBACK_COMPLETE',
-                            'DELETE_IN_PROGRESS',
-                            'DELETE_FAILED',
-                            'DELETE_COMPLETE'])
+                          response['StackId'],
+                          ['CREATE_COMPLETE'],
+                          ['CREATE_FAILED',
+                           'ROLLBACK_IN_PROGRESS',
+                           'ROLLBACK_FAILED',
+                           'ROLLBACK_COMPLETE',
+                           'DELETE_IN_PROGRESS',
+                           'DELETE_FAILED',
+                           'DELETE_COMPLETE'],
+                          sqs_client=boto3.client('sqs', region_name=region) if sns_sqs else None,
+                          sqs_queue=sns_sqs['sqs'])
     return res, response['StackId']
 
 
@@ -179,7 +212,7 @@ if __name__ == "__main__":
         delete_stack(stack_name, values.region)
         sys.exit(-1)
     else:
-        outputs = get_stack_outputs(stack_name, values.region)
+        outputs = get_stack_outputs(values.name, values.region)
         with open(values.output, "a") as myfile:
             for output in outputs:
                 myfile.write("{}={}\n".format(output['OutputKey'], output['OutputValue']))
