@@ -3,7 +3,7 @@ import boto3
 import time
 import argparse
 from troposphere import Template
-from build.services import create_services
+from services import *
 from micorservice import create_microservice_asg_with_elb
 from env import *
 import sys
