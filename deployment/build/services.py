@@ -37,7 +37,7 @@ def create_sns_sqs(template, sns_name, sqs_name):
                 }
             }]
         },
-        Queues=[q]
+        Queues=[sqs_name]
     ))
 
     template.add_output(Output(
