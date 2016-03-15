@@ -1,0 +1,41 @@
+---
+
+- name: install git
+  apt: name={{item}} state=latest update_cache=yes
+  with_items:
+    - git
+    - build-essential
+    - fakeroot
+    - dpkg-dev
+    - libcurl4-openssl-dev
+
+- name: install git
+  file: path=/tmp/git state=directory
+
+- name: fix ubuntu git https handshake bug 1
+  shell: apt-get source git chdir=/tmp/git
+
+- name: fix ubuntu git https handshake bug 2
+  shell: apt-get build-dep git chdir=/tmp/git
+
+- name: fix ubuntu git https handshake bug 3
+  shell: dpkg-source -x git_1.9.1-1ubuntu0.2.dsc chdir=/tmp/git
+
+- name: fix ubuntu git https handshake bug 4
+  shell: sed -i s/libcurl4-gnutls-dev/libcurl4-openssl-dev/g debian/control chdir=/tmp/git/git-1.9.1
+
+- name: fix ubuntu git https handshake bug 5
+  shell: dpkg-buildpackage -rfakeroot -b chdir=/tmp/git/git-1.9.1
+
+- name: fix ubuntu git https handshake bug 6
+  shell: dpkg -i git_1.9.1-1ubuntu0.2_amd64.deb chdir=/tmp/git
+
+- name: fix ubuntu git https handshake bug 7
+  pip: name=awscli
+
+
+- name: configure cloudconfig access 1
+  shell: git config --global credential.helper '!aws codecommit credential-helper $@'
+
+- name: configure cloudconfig access 2
+  shell: git config --global credential.UseHttpPath true

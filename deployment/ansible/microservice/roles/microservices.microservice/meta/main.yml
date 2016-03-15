@@ -1,0 +1,6 @@
+---
+
+dependencies:
+  - redouane.java
+  - Stouts.supervisor
+  - tumf.newrelic
