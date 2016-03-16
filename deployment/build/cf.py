@@ -114,23 +114,15 @@ def create_stack(template, name, region, tags=[]):
     return res, response['StackId']
 
 
-def update_stack_template(stack_name, template, region):
-    json_update_template = json.loads(template.to_json())
-
+def get_stack_template(stack_name, region):
     client = boto3.client('cloudformation', region_name=region)
     orig_template = client.get_template(
         StackName=stack_name
     )
-    json_orig_template = json.loads(orig_template['TemplateBody'])
+    if orig_template:
+        return json.loads(orig_template['TemplateBody'])
 
-    json_orig_template['Metadata'].update(json_update_template['Metadata'])
-    json_orig_template['Parameters'].update(json_update_template['Parameters'])
-    json_orig_template['Mappings'].update(json_update_template['Mappings'])
-    json_orig_template['Conditions'].update(json_update_template['Conditions'])
-    json_orig_template['Resources'].update(json_update_template['Resources'])
-    json_orig_template['Outputs'].update(json_update_template['Outputs'])
-
-    return json_orig_template
+    return None
 
 
 def update_stack(stack_name, template_body, region):
@@ -195,15 +187,17 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--create", help="Create microservice stack")
     parser.add_argument("-n", "--name", help="name")
     parser.add_argument("-k", "--keyname", help="keyname")
-    parser.add_argument("-s", "--services", help="Json array for services with {ami, profile, instance_type}")
+    parser.add_argument("-s", "--services", help="Json object for microservice override: {micro_name: {ami, instance_type}}")
     parser.add_argument("-r", "--region", help="region")
+    parser.add_argument("-b", "--build", help="build number")
     parser.add_argument("-v", "--vpc", help="vpc id")
     parser.add_argument("-o", "--output", help="output properties file")
     values = parser.parse_args()
 
     t = None
-    if values.create == 'microservice':
-        t = create_env(json.loads(values.services), values.keyname, values.region, values.vpc)
+    if values.create == 'app':
+        t = create_env(values.name, json.loads(values.services), values.keyname, values.region, values.vpc, values.build,
+                       base_stack=get_stack_template(values.name, values.region))
     elif values.create == 'services':
         t = create_services()
 

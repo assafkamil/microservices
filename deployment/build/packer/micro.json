@@ -8,7 +8,11 @@
       "ami_name": "{{user `microservice`}} {{timestamp}}",
       "source_ami": "ami-fce3c696",
       "vpc_id": "vpc-e1bd2584",
-      "subnet_id": "subnet-31f3331a"
+      "subnet_id": "subnet-31f3331a",
+      "tags": {
+        "build": "{{user `build_number`}}",
+        "microservice": "{{user `microservice`}}"
+      }
     }
   ],
   "provisioners": [

@@ -1,13 +1,16 @@
 import boto3
-from troposphere import Base64, Join, Output, GetAtt, UpdatePolicy
+from troposphere import Base64, Join, Output, GetAtt, UpdatePolicy, FindInMap
 from troposphere import Ref
 from troposphere.autoscaling import AutoScalingGroup
 from troposphere.autoscaling import LaunchConfiguration
 from troposphere.elasticloadbalancing import LoadBalancer
 import troposphere.ec2 as ec2
 import troposphere.elasticloadbalancing as elb
+from troposphere.iam import Role, Policy, InstanceProfile
 from troposphere.policies import CreationPolicy, ResourceSignal, AutoScalingRollingUpdate
 from troposphere.route53 import HostedZone, HostedZoneVPCs, RecordSetType, AliasTarget
+from awacs.aws import Allow, Statement, Principal, Policy
+from awacs.sts import AssumeRole
 
 
 def create_load_balancer(template,
@@ -147,6 +150,10 @@ def create_microservice_asg(template,
                             depends_on=None,
                             metadata=None,
                             tags=[]):
+    template.Mappings = template.Mappings if template.Mappings else {}
+    template.Mappings[name] = {
+        Ref("AWS::Region"): {'instance_type': instance_type, 'ami': ami, 'profile': instance_profile}}
+
     if not availability_zones:
         availability_zones = _all_az(region)
 
@@ -178,7 +185,8 @@ def create_microservice_asg(template,
         "LaunchConfiguration" + name,
         UserData=Base64(Join('', [
             "#!/bin/bash -ex\n",
-            "/usr/local/bin/cfn-init --stack ", Ref("AWS::StackName"), " --resource {}".format(asg_name), " --region ", Ref("AWS::Region"), "\n",
+            "/usr/local/bin/cfn-init --stack ", Ref("AWS::StackName"), " --resource {}".format(asg_name), " --region ",
+            Ref("AWS::Region"), "\n",
             "# wait until microservice is ready/n",
             "until $(curl --output /dev/null --silent --head --fail http://localhost:{}/health); do\n".format(
                 instance_port),
@@ -191,10 +199,10 @@ def create_microservice_asg(template,
             "    --stack ", Ref("AWS::StackName"),
             "    --region ", Ref("AWS::Region"), "\n"
         ])),
-        ImageId=ami,
+        ImageId=FindInMap(name, Ref("AWS::Region"), 'ami'),
         KeyName=key_name,
         SecurityGroups=security_group_refs,
-        InstanceType=instance_type,
+        InstanceType=FindInMap(name, Ref("AWS::Region"), 'instance_type'),
         IamInstanceProfile=instance_profile
     )
     if metadata:
@@ -326,3 +334,71 @@ def create_private_dns_elb(template, hosted_zone, name, elb, cf_resource_name):
     ))
 
     return dns_record
+
+
+def create_ec2_instance_role(template, name, managed_policy_arns=None, policies=None):
+    role_name = name + "Role"
+    cfnrole = Role(
+        role_name,
+        Path=role_name,
+        AssumeRolePolicyDocument=Policy(
+            Statement=[
+                Statement(
+                    Effect=Allow,
+                    Action=[AssumeRole],
+                    Principal=Principal("Service", ["ec2.amazonaws.com"])
+                )
+            ]
+        )
+    )
+    if policies:
+        cfnrole.Policies = policies
+    if managed_policy_arns:
+        cfnrole.ManagedPolicyArns = managed_policy_arns
+    cfnrole = template.add_resource(cfnrole)
+
+
+    profile_name = name + 'Profile'
+    cfninstanceprofile = template.add_resource(InstanceProfile(
+        profile_name,
+        Roles=[Ref(cfnrole)]
+    ))
+
+    return {'role': cfnrole, 'profile': cfninstanceprofile}
+
+
+def get_ami_from_stack(stack, name, region):
+    if not stack or name not in stack['Mappings'] or region not in stack['Mappings'][name]:
+        return None
+    return stack['Mappings'][name][region]
+
+
+def get_ami_aws(name, build, region):
+    ec2 = boto3.client('ec2', region_name=region)
+    imgs = ec2.describe_images(
+        Filters=[
+            {'Name': 'tag', 'Values': ['microservice={}'.format(name), 'build={}'.format(build)]}
+        ]
+    )
+    if not imgs or len(imgs['Images']) == 0:
+        return None
+    return imgs['Images'][0]['ImageId']
+
+
+def get_ami(name, build, instance_type, instance_profile, region, stack):
+    ami = get_ami_aws(name, build, region)
+    if ami:
+        return {'instance_type': instance_type, 'ami': ami, 'profile': instance_profile}
+    stack_ami = get_ami_from_stack(stack, name, region)
+    if stack_ami:
+        return stack_ami
+    return None
+
+
+def get_instance_info(name, build, instance_type, instance_profile, region, stack, overrides):
+    instance_info = get_ami(name, build, instance_type, instance_profile, region, stack)
+    if name in overrides:
+        if 'ami' in overrides[name]:
+            instance_info['ami'] = overrides[name]['ami']
+        if 'instance_type' in overrides[name]:
+            instance_info['instance_type'] = overrides[name]['instance_type']

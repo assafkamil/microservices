@@ -4,7 +4,7 @@ from troposphere.cloudformation import InitConfig, Init
 from micorservice import *
 
 
-def create_env(name, services, key_name, region, vpc_id):
+def create_env(name, overrides, key_name, region, vpc_id, build, base_stack=None):
     t = Template()
     t.add_description("""\
     microservices stack""")
@@ -12,7 +12,7 @@ def create_env(name, services, key_name, region, vpc_id):
     # creating private hosted zone (dns)
     hosted_zone = create_private_dns(t, name, vpc_id, region)
 
-    # creating codecommit repo
+    # creating codecommit repo (if not exists)
     codecommit = boto3.client('codecommit')
     repo_res = codecommit.get_repository(
         repositoryName=name
@@ -24,6 +24,10 @@ def create_env(name, services, key_name, region, vpc_id):
     repo = repo_res['repositoryMetadata']['cloneUrlHttp']
 
     # creating config service
+    role_profile = create_ec2_instance_role(t, 'configservice')
+    instance_info = get_instance_info('configservice', build, 't2.micro', Ref(role_profile['profile']), region,
+                                      base_stack, overrides)
+
     metadata = Metadata(
         Init({
             "config": InitConfig(
@@ -38,10 +42,10 @@ def create_env(name, services, key_name, region, vpc_id):
 
     config_service = create_microservice_asg_with_elb(
         t,
-        services['config']['ami'],
+        instance_info['ami'],
         key_name,
-        services['config']['profile'],
-        services['config']['instance_type'],
+        instance_info['profile'],
+        instance_info['instance_type'],
         'ConfigService',
         vpc_id,
         elb_port=8888,
