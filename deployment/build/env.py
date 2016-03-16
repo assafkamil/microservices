@@ -4,13 +4,13 @@ from troposphere.cloudformation import InitConfig, Init
 from micorservice import *
 
 
-def create_env(name, overrides, key_name, region, vpc_id, build, base_stack=None):
+def create_env(name, overrides, key_name, region, vpc_id, build, internal_domain, base_stack=None):
     t = Template()
     t.add_description("""\
     microservices stack""")
 
     # creating private hosted zone (dns)
-    hosted_zone = create_private_dns(t, name, vpc_id, region)
+    hosted_zone = create_private_dns(t, internal_domain, vpc_id, region)
 
     # creating codecommit repo (if not exists)
     codecommit = boto3.client('codecommit')

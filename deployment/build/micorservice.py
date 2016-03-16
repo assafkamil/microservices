@@ -305,8 +305,7 @@ def create_microservice_asg_with_elb(template,
     return asg_res
 
 
-def create_private_dns(template, name, vpc_id, region):
-    hosted_zone_name = name + ".internal"
+def create_private_dns(template, hosted_zone_name, vpc_id, region):
     hosted_zone = template.add_resource(HostedZone(
         "HostedZone",
         Name=hosted_zone_name,
