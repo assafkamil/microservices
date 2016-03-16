@@ -187,7 +187,7 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--create", help="Create microservice stack")
     parser.add_argument("-n", "--name", help="name")
     parser.add_argument("-k", "--keyname", help="keyname")
-    parser.add_argument("-s", "--services",
+    parser.add_argument("-O", "--overrides",
                         help="Json object for microservice override: {micro_name: {ami, instance_type}}")
     parser.add_argument("-r", "--region", help="region")
     parser.add_argument("-b", "--build", help="build number")
@@ -198,7 +198,7 @@ if __name__ == "__main__":
 
     t = None
     if values.create == 'app':
-        t = create_env(values.name, json.loads(values.services), values.keyname, values.region, values.vpc,
+        t = create_env(values.name, values.overrides, values.keyname, values.region, values.vpc,
                        values.build, values.domain,
                        base_stack=get_stack_template(values.name, values.region))
     elif values.create == 'services':

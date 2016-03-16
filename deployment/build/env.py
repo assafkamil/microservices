@@ -1,3 +1,4 @@
+import json
 from troposphere import Template
 from troposphere.autoscaling import Metadata
 from troposphere.cloudformation import InitConfig, Init
@@ -8,6 +9,8 @@ def create_env(name, overrides, key_name, region, vpc_id, build, internal_domain
     t = Template()
     t.add_description("""\
     microservices stack""")
+
+    overrides = json.loads(overrides) if overrides else {}
 
     # creating private hosted zone (dns)
     hosted_zone = create_private_dns(t, internal_domain, vpc_id, region)
