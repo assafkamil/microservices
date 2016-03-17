@@ -181,7 +181,7 @@ def _defualt_vpc(region):
     res = ec2.describe_vpcs(
         Filters=[{
             'Name': 'isDefault',
-            'Values': [True]
+            'Values': ['true']
         }]
     )
     if not res or len(res['Vpcs']) == 0:
