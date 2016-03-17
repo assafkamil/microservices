@@ -203,7 +203,7 @@ def create_microservice_asg(template,
         KeyName=key_name,
         SecurityGroups=security_group_refs,
         InstanceType=FindInMap(name, Ref("AWS::Region"), 'instanceType'),
-        IamInstanceProfile=instance_profile
+        IamInstanceProfile=Ref(instance_profile)
     )
     if metadata:
         lc.Metadata = metadata
