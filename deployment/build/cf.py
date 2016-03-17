@@ -1,6 +1,7 @@
 import json
 import time
 import argparse
+import botocore
 from services import *
 from env import *
 import sys
@@ -116,11 +117,16 @@ def create_stack(template, name, region, tags=[]):
 
 def get_stack_template(stack_name, region):
     client = boto3.client('cloudformation', region_name=region)
-    orig_template = client.get_template(
-        StackName=stack_name
-    )
-    if orig_template:
-        return json.loads(orig_template['TemplateBody'])
+
+    try:
+        orig_template = client.get_template(
+            StackName=stack_name
+        )
+        if orig_template:
+            return json.loads(orig_template['TemplateBody'])
+    except botocore.exceptions.ClientError as e:
+        print e.response['Error']['Code']
+        raise e
 
     return None
 
