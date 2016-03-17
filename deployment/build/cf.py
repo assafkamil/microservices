@@ -176,6 +176,18 @@ def create_microservice_with_elb(name, ami, key_name, instance_profile, instance
     return create_stack(template=t, name=name, region=region)
 
 
+def _defualt_vpc(region):
+    ec2 = boto3.client('ec2', region_name=region)
+    res = ec2.describe_vpcs(
+        Filters=[{
+            'Name': 'isDefault',
+            'Values': [True]
+        }]
+    )
+    if not res or len(res['Vpcs']) == 0:
+        return None
+    return res['Vpcs'][0]['VpcId']
+
 def get_stack_outputs(stack_name, region):
     client = boto3.client('cloudformation', region_name=region)
     res = client.describe_stacks(StackName=stack_name)
@@ -188,7 +200,7 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--name", help="name")
     parser.add_argument("-k", "--keyname", help="keyname")
     parser.add_argument("-O", "--overrides",
-                        help="Json object for microservice override: {micro_name: {ami, instance_type}}")
+                        help="Json object for microservice override: {micro_name: {ami: ami-id, instance_type: type}}")
     parser.add_argument("-r", "--region", help="region")
     parser.add_argument("-b", "--build", help="build number")
     parser.add_argument("-v", "--vpc", help="vpc id")
@@ -196,9 +208,14 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output", help="output properties file")
     values = parser.parse_args()
 
+    vpc = values.vpc if values.vpc else _defualt_vpc(values.region)
+    if not vpc:
+        print 'vpc was not defined and default vpc could not be found'
+        sys.exit(-1)
+
     t = None
     if values.create == 'app':
-        t = create_env(values.name, values.overrides, values.keyname, values.region, values.vpc,
+        t = create_env(values.name, values.overrides, values.keyname, values.region, vpc,
                        values.build, values.domain,
                        base_stack=get_stack_template(values.name, values.region))
     elif values.create == 'services':

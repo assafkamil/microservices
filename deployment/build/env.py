@@ -37,6 +37,9 @@ def create_env(name, overrides, key_name, region, vpc_id, build, internal_domain
                 commands={
                     "setrepoenv": {
                         "command": "echo \"SPRING_CLOUD_CONFIG_SERVER_GIT_URI={}\" >> /etc/environment".format(repo)
+                    },
+                    "sourceenv": {
+                        "command": "source /etc/environment"
                     }
                 }
             )
