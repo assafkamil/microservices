@@ -392,7 +392,7 @@ def get_ami(name, build, instance_type, instance_profile, region, stack):
     stack_ami = get_ami_from_stack(stack, name, region)
     if stack_ami:
         return stack_ami
-    return None
+    return {'instance_type': instance_type, 'profile': instance_profile}
 
 
 def get_instance_info(name, build, instance_type, instance_profile, region, stack, overrides):
