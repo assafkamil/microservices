@@ -34,7 +34,7 @@ def create_env(name, overrides, key_name, region, vpc_id, build, internal_domain
 
     # creating config service
     role_profile = create_ec2_instance_role(t, 'configservice')
-    instance_info = get_instance_info('configservice', build, 't2.micro', Ref(role_profile['profile']), region,
+    instance_info = get_instance_info('configservice', build, 't2.micro', role_profile['profile'], region,
                                       base_stack, overrides)
 
     metadata = Metadata(
