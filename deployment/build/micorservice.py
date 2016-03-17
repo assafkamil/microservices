@@ -173,9 +173,9 @@ def create_microservice_asg(template,
         )))
 
     if not creation_policy:
-        creation_policy = _default_creation_policy(template, name)
+        creation_policy = _default_creation_policy(name)
     if not update_policy:
-        update_policy = _default_update_policy(template, name)
+        update_policy = _default_update_policy()
 
     security_group_refs = [Ref(sg) for sg in security_groups]
 
