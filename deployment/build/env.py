@@ -16,7 +16,7 @@ def create_env(name, overrides, key_name, region, vpc_id, build, internal_domain
     hosted_zone = create_private_dns(t, internal_domain, vpc_id, region)
 
     # creating codecommit repo (if not exists)
-    codecommit = boto3.client('codecommit')
+    codecommit = boto3.client('codecommit', region_name=region)
     repo_res = codecommit.get_repository(
         repositoryName=name
     )
