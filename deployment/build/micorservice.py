@@ -1,5 +1,5 @@
 import boto3
-from troposphere import Base64, Join, Output, GetAtt, UpdatePolicy, FindInMap
+from troposphere import Base64, Join, Output, GetAtt, FindInMap
 from troposphere import Ref
 from troposphere.autoscaling import AutoScalingGroup
 from troposphere.autoscaling import LaunchConfiguration
@@ -7,7 +7,7 @@ from troposphere.elasticloadbalancing import LoadBalancer
 import troposphere.ec2 as ec2
 import troposphere.elasticloadbalancing as elb
 from troposphere.iam import Role, InstanceProfile
-from troposphere.policies import CreationPolicy, ResourceSignal, AutoScalingRollingUpdate
+from troposphere.policies import CreationPolicy, UpdatePolicy, ResourceSignal, AutoScalingRollingUpdate
 from troposphere.route53 import HostedZone, HostedZoneVPCs, RecordSetType, AliasTarget
 from awacs.aws import Allow, Statement, Principal, Policy
 from awacs.sts import AssumeRole
