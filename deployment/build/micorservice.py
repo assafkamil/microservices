@@ -376,7 +376,8 @@ def get_ami_aws(name, build, region):
     ec2 = boto3.client('ec2', region_name=region)
     imgs = ec2.describe_images(
         Filters=[
-            {'Name': 'tag', 'Values': ['microservice={}'.format(name), 'build={}'.format(build)]}
+            {'Name': 'tag:microservice', 'Values': [name]},
+            {'Name': 'tag:build', 'Values': [build]}
         ]
     )
     if not imgs or len(imgs['Images']) == 0:
