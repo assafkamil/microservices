@@ -363,7 +363,7 @@ def create_ec2_instance_role(template, name, managed_policy_arns=None, policies=
         Roles=[Ref(cfnrole)]
     ))
 
-    return {'role': cfnrole, 'profile': cfninstanceprofile}
+    return {'role': cfnrole, 'profile': profile_name}
 
 
 def get_ami_from_stack(stack, name, region):
