@@ -1,4 +1,5 @@
 import json
+import botocore
 from troposphere import Template
 from troposphere.autoscaling import Metadata
 from troposphere.cloudformation import InitConfig, Init
@@ -17,9 +18,14 @@ def create_env(name, overrides, key_name, region, vpc_id, build, internal_domain
 
     # creating codecommit repo (if not exists)
     codecommit = boto3.client('codecommit', region_name=region)
-    repo_res = codecommit.get_repository(
-        repositoryName=name
-    )
+    try:
+        repo_res = codecommit.get_repository(
+            repositoryName=name
+        )
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == 'RepositoryDoesNotExistException':
+            repo_res = None
+
     if not repo_res:
         repo_res = codecommit.create_repository(
             repositoryName=name
