@@ -151,7 +151,7 @@ def create_microservice_asg(template,
                             metadata=None,
                             tags=[]):
     template.mappings[name] = {
-        region: {'instance_type': instance_type, 'ami': ami, 'profile': instance_profile}
+        region: {'instanceType': instance_type, 'ami': ami, 'profile': instance_profile}
     }
 
     if not availability_zones:
@@ -202,7 +202,7 @@ def create_microservice_asg(template,
         ImageId=FindInMap(name, Ref("AWS::Region"), 'ami'),
         KeyName=key_name,
         SecurityGroups=security_group_refs,
-        InstanceType=FindInMap(name, Ref("AWS::Region"), 'instance_type'),
+        InstanceType=FindInMap(name, Ref("AWS::Region"), 'instanceType'),
         IamInstanceProfile=instance_profile
     )
     if metadata:
@@ -388,11 +388,11 @@ def get_ami_aws(name, build, region):
 def get_ami(name, build, instance_type, instance_profile, region, stack):
     ami = get_ami_aws(name, build, region)
     if ami:
-        return {'instance_type': instance_type, 'ami': ami, 'profile': instance_profile}
+        return {'instanceType': instance_type, 'ami': ami, 'profile': instance_profile}
     stack_ami = get_ami_from_stack(stack, name, region)
     if stack_ami:
         return stack_ami
-    return {'instance_type': instance_type, 'profile': instance_profile}
+    return {'instanceType': instance_type, 'profile': instance_profile}
 
 
 def get_instance_info(name, build, instance_type, instance_profile, region, stack, overrides):
@@ -401,5 +401,5 @@ def get_instance_info(name, build, instance_type, instance_profile, region, stac
         if 'ami' in overrides[name]:
             instance_info['ami'] = overrides[name]['ami']
         if 'instance_type' in overrides[name]:
-            instance_info['instance_type'] = overrides[name]['instance_type']
+            instance_info['instanceType'] = overrides[name]['instance_type']
     return instance_info

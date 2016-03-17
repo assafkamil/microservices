@@ -57,7 +57,7 @@ def create_env(name, overrides, key_name, region, vpc_id, build, internal_domain
         instance_info['ami'],
         key_name,
         instance_info['profile'],
-        instance_info['instance_type'],
+        instance_info['instanceType'],
         'ConfigService',
         vpc_id,
         elb_port=8888,
