@@ -71,7 +71,7 @@ def _wait_for_stack(client, stack_id, success_statuses, failure_statuses, sqs_cl
 
 def _cf_sns_sqs(client):
     response = client.describe_stacks(
-        StackName='services'
+        StackName='service'
     )
     if not response:
         return None
