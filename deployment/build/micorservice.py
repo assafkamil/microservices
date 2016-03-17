@@ -6,7 +6,7 @@ from troposphere.autoscaling import LaunchConfiguration
 from troposphere.elasticloadbalancing import LoadBalancer
 import troposphere.ec2 as ec2
 import troposphere.elasticloadbalancing as elb
-from troposphere.iam import Role, Policy, InstanceProfile
+from troposphere.iam import Role, InstanceProfile
 from troposphere.policies import CreationPolicy, ResourceSignal, AutoScalingRollingUpdate
 from troposphere.route53 import HostedZone, HostedZoneVPCs, RecordSetType, AliasTarget
 from awacs.aws import Allow, Statement, Principal, Policy
@@ -115,11 +115,11 @@ def _get_vpc_subnets(vpc_id, region):
     return [subnet.id for subnet in vpc.subnets.all()]
 
 
-def _default_creation_policy(template, name):
-    return CreationPolicy(ResourceSignal(name + 'AsgSignal'))
+def _default_creation_policy(name):
+    return CreationPolicy(ResourceSignal=ResourceSignal(name + 'AsgSignal'))
 
 
-def _default_update_policy(template, name):
+def _default_update_policy():
     return UpdatePolicy(
         AutoScalingRollingUpdate=AutoScalingRollingUpdate(
             MinInstancesInService=1,
