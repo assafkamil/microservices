@@ -70,11 +70,13 @@ def _wait_for_stack(client, stack_id, success_statuses, failure_statuses, sqs_cl
 
 
 def _cf_sns_sqs(client):
-    response = client.describe_stacks(
-        StackName='service'
-    )
-    if not response:
+    try:
+        response = client.describe_stacks(
+            StackName='service'
+        )
+    except botocore.exceptions.ClientError as e:
         return None
+
     snsarn = None
     sqsarn = None
     for output in response['Stacks'][0]['Outputs']:
