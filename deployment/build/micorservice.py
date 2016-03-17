@@ -150,9 +150,9 @@ def create_microservice_asg(template,
                             depends_on=None,
                             metadata=None,
                             tags=[]):
-    template.Mappings = template.Mappings if template.Mappings else {}
-    template.Mappings[name] = {
-        Ref("AWS::Region"): {'instance_type': instance_type, 'ami': ami, 'profile': instance_profile}}
+    template.mappings[name] = {
+        Ref("AWS::Region"): {'instance_type': instance_type, 'ami': ami, 'profile': instance_profile}
+    }
 
     if not availability_zones:
         availability_zones = _all_az(region)
