@@ -402,3 +402,4 @@ def get_instance_info(name, build, instance_type, instance_profile, region, stac
             instance_info['ami'] = overrides[name]['ami']
         if 'instance_type' in overrides[name]:
             instance_info['instance_type'] = overrides[name]['instance_type']
+    return instance_info
