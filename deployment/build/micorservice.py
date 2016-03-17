@@ -116,7 +116,7 @@ def _get_vpc_subnets(vpc_id, region):
 
 
 def _default_creation_policy(template, name):
-    return CreationPolicy(ResourceSignal(name + 'asg_signal'))
+    return CreationPolicy(ResourceSignal(name + 'AsgSignal'))
 
 
 def _default_update_policy(template, name):
