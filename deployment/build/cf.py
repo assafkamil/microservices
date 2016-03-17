@@ -125,7 +125,8 @@ def get_stack_template(stack_name, region):
         if orig_template:
             return json.loads(orig_template['TemplateBody'])
     except botocore.exceptions.ClientError as e:
-        print e.response['Error']['Code']
+        if e.response['Error']['Code'] == 'ValidationError':
+            return None
         raise e
 
     return None
