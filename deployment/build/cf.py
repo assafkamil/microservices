@@ -178,15 +178,17 @@ def create_microservice_with_elb(name, ami, key_name, instance_profile, instance
 
 def _defualt_vpc(region):
     ec2 = boto3.client('ec2', region_name=region)
-    res = ec2.describe_vpcs(
-        Filters=[{
-            'Name': 'isDefault',
-            'Values': ['true']
-        }]
-    )
+    res = ec2.describe_vpcs()
     if not res or len(res['Vpcs']) == 0:
         return None
-    return res['Vpcs'][0]['VpcId']
+    if len(res['Vpcs']) == 1:
+        return res['Vpcs'][0]['VpcId']
+
+    defaults = [vpc['VpcId'] for vpc in res['Vpcs'] if vpc['IsDefault']]
+    if len(defaults) == 0:
+        return res['Vpcs'][0]['VpcId']
+
+    return defaults[0]
 
 def get_stack_outputs(stack_name, region):
     client = boto3.client('cloudformation', region_name=region)
