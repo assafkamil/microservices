@@ -99,6 +99,7 @@ def create_stack(template, name, region, tags=[]):
         StackName=name,
         TemplateBody=stack_json,
         NotificationARNs=[sns_sqs['sns']] if sns_sqs else [],
+        Capabilities=['CAPABILITY_IAM'],
         Tags=tags
     )
 
