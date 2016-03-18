@@ -338,7 +338,6 @@ def create_ec2_instance_role(template, name, managed_policy_arns=None, policies=
     role_name = name + "Role"
     cfnrole = Role(
         role_name,
-        Path=role_name,
         AssumeRolePolicyDocument=Policy(
             Statement=[
                 Statement(

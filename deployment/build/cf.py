@@ -58,9 +58,7 @@ def _wait_for_stack(client, stack_id, success_statuses, failure_statuses, sqs_cl
                 WaitTimeSeconds=20
             )
             for msg in res['Messages']:
-                print msg['Body']
-                for attr in msg['MessageAttributes']:
-                    print str(attr)
+                print msg['Body']['Message']
                 client.delete_message(
                     QueueUrl=sqs_queue,
                     ReceiptHandle=msg['ReceiptHandle']
