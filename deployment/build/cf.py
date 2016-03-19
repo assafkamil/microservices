@@ -1,15 +1,18 @@
-import json
 import time
 import argparse
-import botocore
+import dateutil
+import pytz
 from services import *
 from env import *
 import sys
+import datetime
 
 
-def _print_events(client, stack_id, displayed_events={}):
+def _print_events(client, stack_id, start_time):
     next_token = None
     loop_events = True
+
+    last_dt = start_time
 
     while loop_events:
         if next_token:
@@ -17,8 +20,9 @@ def _print_events(client, stack_id, displayed_events={}):
         else:
             events_res = client.describe_stack_events(StackName=stack_id)
         for event in events_res['StackEvents']:
-            if event['EventId'] in displayed_events:
-                continue
+            dt = dateutil.parser.parse(event['Timestamp'])
+            if dt < start_time:
+                return last_dt
             print "time: {}, status: {}, reason: {}, resource (logical): {}, resource (physical): {}, resource type: {}".format(
                 event['Timestamp'] if 'Timestamp' in event else '',
                 event['ResourceStatus'] if 'ResourceStatus' in event else '',
@@ -26,33 +30,35 @@ def _print_events(client, stack_id, displayed_events={}):
                 event['LogicalResourceId'] if 'LogicalResourceId' in event else '',
                 event['PhysicalResourceId'] if 'PhysicalResourceId' in event else '',
                 event['ResourceType'] if 'ResourceType' in event else '')
-            displayed_events[event['EventId']] = 1
+            last_dt = dt
         next_token = events_res['NextToken'] if 'NextToken' in events_res else None
         loop_events = next_token is not None
-    return displayed_events
+
+    return last_dt
 
 
 def _wait_for_stack(client, stack_id, success_statuses, failure_statuses, sqs_client=None, sqs_queue=None):
-    displayed_events = {}
+    start_time = datetime.datetime.now()
+    start_time = start_time.replace(tzinfo=pytz.utc)
     while True:
-        if not sqs_client:
-            displayed_events = _print_events(client, stack_id, displayed_events)
-            status_res = client.describe_stacks(
-                StackName=stack_id
+        _print_events(client, stack_id, start_time)
+        status_res = client.describe_stacks(
+            StackName=stack_id
+        )
+        status_res_stack = status_res['Stacks'][0]
+        status = status_res_stack['StackStatus']
+        if status in success_statuses:
+            print "time: {}, status: Stack creation completed successfully".format(
+                status_res_stack['LastUpdatedTime'] if 'LastUpdatedTime' in status_res_stack else ''
             )
-            status_res_stack = status_res['Stacks'][0]
-            status = status_res_stack['StackStatus']
-            if status in success_statuses:
-                print "time: {}, status: Stack creation completed successfully".format(
-                    status_res_stack['LastUpdatedTime'] if 'LastUpdatedTime' in status_res_stack else ''
-                )
-                return True
-            if status in failure_statuses:
-                print "time: {}, status: Stack creation failed".format(
-                    status_res_stack['LastUpdatedTime'] if 'LastUpdatedTime' in status_res_stack else ''
-                )
-                return False
-        else:
+            return True
+        if status in failure_statuses:
+            print "time: {}, status: Stack creation failed".format(
+                status_res_stack['LastUpdatedTime'] if 'LastUpdatedTime' in status_res_stack else ''
+            )
+            return False
+
+        if sqs_client:
             res = sqs_client.receive_message(
                 QueueUrl=sqs_queue,
                 WaitTimeSeconds=20
@@ -61,12 +67,12 @@ def _wait_for_stack(client, stack_id, success_statuses, failure_statuses, sqs_cl
                 receipt_handle = msg['ReceiptHandle']
                 msg = json.loads(msg['Body'])
                 print msg['Message']
-                sqs_client.delete_message(
+                client.delete_message(
                     QueueUrl=sqs_queue,
                     ReceiptHandle=receipt_handle
                 )
 
-        time.sleep(30)
+        time.sleep(10)
 
 
 def _cf_sns_sqs(client):

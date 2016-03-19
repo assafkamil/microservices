@@ -326,9 +326,10 @@ def create_private_dns_elb(template, hosted_zone, name, elb, cf_resource_name):
         cf_resource_name,
         HostedZoneName=Join("", [Ref(hosted_zone), "."]),
         Comment="DNS name for my instance.",
-        Name=Join(name+".", [Ref(hosted_zone), "."]),
+        Name=Join(".", [name, GetAtt(hosted_zone, 'Name'), ""]),
         Type="A",
-        AliasTarget=AliasTarget(GetAtt(elb, "CanonicalHostedZoneNameID"), GetAtt(elb, "CanonicalHostedZoneName"))
+        AliasTarget=AliasTarget(GetAtt(elb, "CanonicalHostedZoneNameID"), GetAtt(elb, "CanonicalHostedZoneName")),
+        DependsOn=Ref(elb)
     ))
 
     return dns_record
