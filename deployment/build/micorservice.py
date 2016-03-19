@@ -99,7 +99,7 @@ def create_load_balancer(template,
     ))
 
     return {
-        'elb': {'name': elb_name, 'lb': elb},
+        'elb': {'name': elb_name, 'elb': elb},
         'security_groups': security_groups
     }
 
