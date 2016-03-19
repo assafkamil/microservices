@@ -165,8 +165,8 @@ def create_microservice_asg(template,
             SecurityGroupIngress=[
                 ec2.SecurityGroupRule(
                     IpProtocol='tcp',
-                    FromPort=load_balancer.Listeners[0].InstancePort,
-                    ToPort=load_balancer.Listeners[0].InstancePort,
+                    FromPort=load_balancer['elb'].Listeners[0].InstancePort,
+                    ToPort=load_balancer['elb'].Listeners[0].InstancePort,
                     SourceSecurityGroupId=Ref(load_balancer_security_group)
                 ),
             ],
@@ -223,7 +223,7 @@ def create_microservice_asg(template,
         LaunchConfigurationName=Ref(lc),
         MinSize=min_size,
         MaxSize=max_size,
-        LoadBalancerNames=[Ref(load_balancer)] if load_balancer else None,
+        LoadBalancerNames=[Ref(load_balancer['elb'])] if load_balancer else None,
         HealthCheckGracePeriod=60,
         AvailabilityZones=availability_zones,
         HealthCheckType="EC2" if not load_balancer else "ELB",
@@ -232,7 +232,7 @@ def create_microservice_asg(template,
         UpdatePolicy=update_policy
     )
     if depends_on:
-        asg.DependsOn = Ref(depends_on)
+        asg.DependsOn = depends_on
 
     asg = template.add_resource(asg)
 
