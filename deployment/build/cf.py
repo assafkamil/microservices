@@ -1,6 +1,6 @@
 import time
 import argparse
-import dateutil
+import dateutil.parser
 import pytz
 from services import *
 from env import *
