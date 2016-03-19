@@ -76,8 +76,9 @@ def create_load_balancer(template,
             SSLCertificateId=ssl_cert
         ))
 
+    elb_name = "LoadBalancer" + name
     lb = template.add_resource(LoadBalancer(
-        "LoadBalancer{}".format(name),
+        elb_name,
         ConnectionDrainingPolicy=elb.ConnectionDrainingPolicy(
             Enabled=True,
             Timeout=120,
@@ -98,7 +99,7 @@ def create_load_balancer(template,
     ))
 
     return {
-        'elb': lb,
+        'elb': {'name': elb_name, 'lb': elb},
         'security_groups': security_groups
     }
 
