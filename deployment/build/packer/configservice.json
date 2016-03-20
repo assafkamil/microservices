@@ -8,7 +8,11 @@
       "ami_name": "{{user `microservice`}} {{timestamp}}",
       "source_ami": "ami-fce3c696",
       "vpc_id": "vpc-e1bd2584",
-      "subnet_id": "subnet-31f3331a"
+      "subnet_id": "subnet-31f3331a",
+      "tags": {
+        "build": "{{user `build_number`}}",
+        "microservice": "{{user `microservice`}}"
+      }
     }
   ],
   "provisioners": [
@@ -19,15 +23,24 @@
     },
     {
       "type": "shell",
+      "inline": ["mkdir /home/ubuntu/gitinit"]
+    },
+    {
+      "type": "file",
+      "source": "{{user `dist_path`}}/microservice/gitinit/",
+      "destination": "/home/ubuntu/gitinit"
+    },
+    {
+      "type": "shell",
       "inline": ["sudo apt-add-repository -y ppa:ansible/ansible", "sudo apt-get update", "sudo apt-get install -y ansible", "sudo apt-get install -y git", "sudo apt-get install -y python-pip"]
     },
     {
       "type": "ansible-local",
       "playbook_dir": "{{user `playbook_dir`}}",
-      "playbook_file": "configservice.yml",
+      "playbook_file": "{{user `playbook_file`}}",
       "extra_arguments": [
         "--extra-vars",
-        "\"port={{user `port`}} active_profile={{user `active_profile`}} config_uri={{user `config_uri`}} newrelic_env={{user `newrelic_env`}} microservice_name={{user `microservice`}} jar=/home/ubuntu/micro.jar newrelic_license_key={{user `newrelic_key`}} private_domain={{user `private_domain`}}\""
+        "\"port={{user `port`}} active_profile={{user `active_profile`}} newrelic_env={{user `newrelic_env`}} microservice_name={{user `microservice`}} jar=/home/ubuntu/micro.jar newrelic_license_key={{user `newrelic_key`}} private_domain={{user `private_domain`}}\""
       ]
     }
   ]

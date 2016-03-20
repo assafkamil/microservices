@@ -30,5 +30,6 @@ if __name__ == "__main__":
         Metadata={
             'sshId': ssh_id
         },
+        ACL='private',
         Body=key.exportKey('PEM')
     )

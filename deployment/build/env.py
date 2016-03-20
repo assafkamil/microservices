@@ -26,6 +26,7 @@ def create_env(name, overrides, key_name, region, vpc_id, build, internal_domain
         if e.response['Error']['Code'] == 'RepositoryDoesNotExistException':
             repo_res = None
 
+    new_repo = repo_res is not None
     if not repo_res:
         repo_res = codecommit.create_repository(
             repositoryName=name
@@ -36,18 +37,24 @@ def create_env(name, overrides, key_name, region, vpc_id, build, internal_domain
     role_profile = create_ec2_instance_role(t, 'configservice')
     instance_info = get_instance_info('configservice', build, 't2.micro', role_profile['profile'], region,
                                       base_stack, overrides)
+    commands = {
+        "setrepoenv": {
+            "command": "echo \"SPRING_CLOUD_CONFIG_SERVER_GIT_URI={}\" >> /etc/environment".format(repo)
+        },
+        "sourceenv": {
+            "command": "source /etc/environment"
+        }
+    }
+    if new_repo:
+        commands["initgit"] = {
+            "command": "git init && git remote add origin {} && git add . && git commit -m \"init\" && git push origin".format(repo),
+            "cwd": "/home/ubuntu/initgit"
+        }
 
     metadata = Metadata(
         Init({
             "config": InitConfig(
-                commands={
-                    "setrepoenv": {
-                        "command": "echo \"SPRING_CLOUD_CONFIG_SERVER_GIT_URI={}\" >> /etc/environment".format(repo)
-                    },
-                    "sourceenv": {
-                        "command": "source /etc/environment"
-                    }
-                }
+                commands=commands
             )
         }),
     )

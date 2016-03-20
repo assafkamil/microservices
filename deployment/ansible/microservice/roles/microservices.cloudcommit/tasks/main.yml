@@ -1,43 +1,23 @@
 ---
 
-- name: install git
-  apt: name={{item}} state=latest update_cache=yes
-  with_items:
-    - git
-    - build-essential
-    - fakeroot
-    - dpkg-dev
+- name: Install jq
+  apt: name=jq
 
-- name: install git
-  file: path=/tmp/git state=directory
+- name: install boto
+  pip: name=boto
 
-- name: fix ubuntu git https handshake bug 1
-  shell: apt-get source -y git chdir=/tmp/git
-
-- name: fix ubuntu git https handshake bug 2
-  shell: apt-get build-dep -y git chdir=/tmp/git
-
-- name: fix ubuntu git https handshake bug 3
-  shell: dpkg-source -x git_1.9.1-1ubuntu0.2.dsc chdir=/tmp/git
-
-- name: fix ubuntu git https handshake bug 4
-  shell: sed -i s/libcurl4-gnutls-dev/libcurl4-openssl-dev/g debian/control chdir=/tmp/git/git-1.9.1
-
-- name: install libcurl4-openssl-dev
-  apt: name=libcurl4-openssl-dev
-
-- name: fix ubuntu git https handshake bug 5
-  shell: dpkg-buildpackage -rfakeroot -b chdir=/tmp/git/git-1.9.1
-
-- name: fix ubuntu git https handshake bug 6
-  shell: dpkg -i git_1.9.1-1ubuntu0.2_amd64.deb chdir=/tmp/git
-
-- name: fix ubuntu git https handshake bug 7
+- name: Install awscli
   pip: name=awscli
 
+- name: Get ssh id
+  shell: aws s3api head-object --bucket {{ ssh_bucket }} --key {{ ssh_user }} | jq '.Metadata.sshid'
+  register: iam_user_ssh_id
 
-- name: configure cloudconfig access 1
-  shell: git config --global credential.helper '!aws codecommit credential-helper $@'
+- name: Download private ssh key
+  s3: bucket={{ ssh_bucket }} object={{ ssh_user }} dest=/root/.ssh/codecommit_rsa mode=get
 
-- name: configure cloudconfig access 2
-  shell: git config --global credential.UseHttpPath true
+- name: chmod ssh key
+  file: path=/root/.ssh/codecommit_rsa mode=600
+
+- name: Configure ssh config file
+  template: src=config.j2 dest=/root/.ssh/config owner=root mode=600
