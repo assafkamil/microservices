@@ -27,7 +27,7 @@
     },
     {
       "type": "file",
-      "source": "{{user `dist_path`}}/microservice/gitinit/",
+      "source": "{{user `dist_path`}}/deployment/ansible/microservice/gitinit/",
       "destination": "/home/ubuntu/gitinit"
     },
     {
