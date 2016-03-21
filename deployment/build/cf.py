@@ -108,7 +108,7 @@ def _cf_sns_sqs(region, stack_name='service'):
 def create_utility_stack(region):
     t = create_services()
 
-    stack_name = str(uuid4()).replace('-', '')
+    stack_name = 'util'+str(uuid4()).replace('-', '')
     res, stack_name = create_stack(template=t, name=stack_name, region=region)
     if not res:
         delete_stack(stack_name, region)
