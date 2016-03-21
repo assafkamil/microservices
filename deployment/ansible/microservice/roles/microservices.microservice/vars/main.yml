@@ -10,5 +10,3 @@ newrelic_service_state: started
 newrelic_labels:
   - Environment: "{{ newrelic_env }}"
   - Microservice: "{{ microservice_name }}"
-environment_config:
-  PRIVATE_DOMAIN: "{{ private_domain }}"

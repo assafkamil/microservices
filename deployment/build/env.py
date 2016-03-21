@@ -31,24 +31,22 @@ def create_env(name, overrides, key_name, region, vpc_id, build, internal_domain
         repo_res = codecommit.create_repository(
             repositoryName=name
         )
-    repo = repo_res['repositoryMetadata']['cloneUrlHttp']
+    repo = repo_res['repositoryMetadata']['cloneUrlSsh']
 
     # creating config service
     role_profile = create_ec2_instance_role(t, 'configserver')
     instance_info = get_instance_info('configserver', build, 't2.micro', role_profile['profile'], region,
                                       base_stack, overrides)
     commands = {
-        "setrepoenv": {
-            "command": "echo \"SPRING_CLOUD_CONFIG_SERVER_GIT_URI={}\" >> /etc/environment".format(repo)
-        },
-        "sourceenv": {
-            "command": "source /etc/environment"
+        "setappenvs": {
+            "command": "echo \"spring.cloud.config.server.git.uri={}\" >> /home/ubuntu/application.properties".format(repo)
         }
     }
     if new_repo:
+        # restarting the git repo with values for app\default (required for config service health)
         commands["initgit"] = {
-            "command": "git init && git remote add origin {} && git add . && git commit -m \"init\" && git push origin".format(repo),
-            "cwd": "/home/ubuntu/initgit"
+            "command": "git init && git remote add origin {} && git add . && git commit -m \"init\" && git push origin master".format(repo),
+            "cwd": "/home/ubuntu/gitinit"
         }
 
     metadata = Metadata(

@@ -10,7 +10,7 @@
   pip: name=awscli
 
 - name: Get ssh id
-  shell: aws s3api head-object --bucket {{ ssh_bucket }} --key {{ ssh_user }} | jq '.Metadata.sshid'
+  shell: echo $(aws s3api head-object --bucket {{ ssh_bucket }} --key {{ ssh_user }} | jq -r '.Metadata.sshid')
   register: iam_user_ssh_id
 
 - name: Download private ssh key

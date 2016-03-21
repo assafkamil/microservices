@@ -37,7 +37,7 @@
 
 
 - name: configure cloudconfig access 1
-  shell: git config.j2 --global credential.helper '!aws codecommit credential-helper $@'
+  shell: git config --global credential.helper '!aws codecommit credential-helper $@'
 
 - name: configure cloudconfig access 2
-  shell: git config.j2 --global credential.UseHttpPath true
+  shell: git config --global credential.UseHttpPath true

@@ -14,3 +14,9 @@
 
 - name: Create link to hup
   shell: ln -s aws-cfn-bootstrap-latest/init/ubuntu/cfn-hup /etc/init.d/cfn-hup
+
+- name: Configure app properties file
+  template: src=application.properties.j2 dest=/home/ubuntu/application.properties
+
+- name: Setting logentries on syslog
+  template: src=logentries.conf.j2 dest=/etc/rsyslog.d/39-logentries.conf

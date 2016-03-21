@@ -1,0 +1,3 @@
+$template LogentriesFormat,"{{ LOGENTRIES_TOKEN }} %HOSTNAME% %syslogtag%%msg%\n"
+
+*.* @@data.logentries.com:80;LogentriesFormat

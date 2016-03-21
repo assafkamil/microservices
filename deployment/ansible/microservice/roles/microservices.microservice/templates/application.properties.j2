@@ -1,0 +1,6 @@
+server.port={{ port }}
+spring.profiles.active={{ active_profile }}
+newrelic.config.process_host.display_name={{ microservice_name }}
+newrelic.environment={{ newrelic_env }}
+newrelic.config.labels="labels=Environment:{{ newrelic_env }};Microservice:{{ microservice_name }}"
+private.domain={{ private_domain }}
