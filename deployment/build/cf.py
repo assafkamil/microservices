@@ -20,7 +20,7 @@ def _print_events(client, stack_id, start_time):
         else:
             events_res = client.describe_stack_events(StackName=stack_id)
         for event in events_res['StackEvents']:
-            dt = dateutil.parser.parse(event['Timestamp'])
+            dt = event['Timestamp']
             if dt < start_time:
                 return last_dt
             print "time: {}, status: {}, reason: {}, resource (logical): {}, resource (physical): {}, resource type: {}".format(
