@@ -181,25 +181,29 @@ def create_microservice_asg(template,
     security_group_refs = [Ref(sg) for sg in security_groups]
 
     asg_name = "AutoscalingGroup" + name
+    lc_name = "LaunchConfiguration" + name
 
     lc = LaunchConfiguration(
-        "LaunchConfiguration" + name,
+        lc_name,
         UserData=Base64(Join('', [
             "#!/bin/bash -ex\n",
             "# redirect output to syslog\n",
             "exec 1> >(logger -s -t user-data) 2>&1\n",
             "# running cfn-init\n",
-            "/usr/local/bin/cfn-init --stack ", Ref("AWS::StackName"), " --resource {}".format(asg_name), " --region ",
+            "/usr/local/bin/cfn-init --stack ", Ref("AWS::StackName"), " --resource {}".format(lc_name), " --region ",
             Ref("AWS::Region"), "\n",
+            "echo \"cfn-init finished\"\n",
             "# restart services\n",
             "service supervisor restart\n",
+            "echo \"restarting services\"\n",
             "# wait until microservice is ready\n",
             "until $(curl --output /dev/null --silent --head --fail http://localhost:{}/health); do\n".format(
                 instance_port),
             "    printf '.'\n",
             "    sleep 5\n",
-            "done"
-            "# signal asg"
+            "done\n"
+            "echo \"springboot is up\"\n",
+            "# signal asg\n"
             "cfn-signal -e 0",
             "    --resource {}".format(asg_name),
             "    --stack ", Ref("AWS::StackName"),
