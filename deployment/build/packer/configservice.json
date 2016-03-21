@@ -40,7 +40,7 @@
       "playbook_file": "{{user `playbook_file`}}",
       "extra_arguments": [
         "--extra-vars",
-        "\"port={{user `port`}} active_profile={{user `active_profile`}} newrelic_env={{user `newrelic_env`}} microservice_name={{user `microservice`}} jar=/home/ubuntu/micro.jar newrelic_license_key={{user `newrelic_key`}} private_domain={{user `private_domain`}}\""
+        "\"port={{user `port`}} active_profile={{user `active_profile`}} newrelic_env={{user `newrelic_env`}} microservice_name={{user `microservice`}} jar=/home/ubuntu/micro.jar newrelic_license_key={{user `newrelic_key`}} private_domain={{user `private_domain`}} ssh_bucket={{user `ssh_bucket`}} ssh_user={{user `ssh_user`}}\""
       ]
     }
   ]
