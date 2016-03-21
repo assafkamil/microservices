@@ -7,6 +7,7 @@
       "ssh_username": "ubuntu",
       "ami_name": "{{user `microservice`}} {{timestamp}}",
       "source_ami": "ami-fce3c696",
+      "iam_instance_profile": "packer",
       "vpc_id": "vpc-e1bd2584",
       "subnet_id": "subnet-31f3331a",
       "tags": {
