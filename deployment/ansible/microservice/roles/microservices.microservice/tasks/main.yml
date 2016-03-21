@@ -1,7 +1,18 @@
 ---
 
 - name: Installs
-  apt: name=python-setuptools
+  apt: name={{ item }}
+  with_items:
+    - python-setuptools
+    - libffi-dev
+    - libssl-dev
+
+- name: Pip
+  pip: name={{ item }}
+  with_items:
+    - pyopenssl
+    - ndg-httpsclient
+    - pyasn1
 
 - name: Creates AWS CF tools directory
   file: path=aws-cfn-bootstrap-latest state=directory

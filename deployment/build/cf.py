@@ -120,7 +120,7 @@ def create_stack(template, name, region, tags=[]):
                            'DELETE_FAILED',
                            'DELETE_COMPLETE'],
                           sqs_client=boto3.client('sqs', region_name=region) if sns_sqs else None,
-                          sqs_queue=sns_sqs['sqs'])
+                          sqs_queue=sns_sqs['sqs'] if sns_sqs else None)
     return res, response['StackId']
 
 
