@@ -67,7 +67,7 @@ def _wait_for_stack(client, stack_id, success_statuses, failure_statuses, sqs_cl
                 receipt_handle = msg['ReceiptHandle']
                 msg = json.loads(msg['Body'])
                 print msg['Message']
-                client.delete_message(
+                sqs_client.delete_message(
                     QueueUrl=sqs_queue,
                     ReceiptHandle=receipt_handle
                 )
