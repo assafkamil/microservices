@@ -1,5 +1,6 @@
 import time
 import argparse
+from uuid import uuid4
 import dateutil.parser
 import pytz
 from services import *
@@ -19,10 +20,15 @@ def _print_events(client, stack_id, start_time):
             events_res = client.describe_stack_events(StackName=stack_id, NextToken=next_token)
         else:
             events_res = client.describe_stack_events(StackName=stack_id)
+        events_to_print = []
         for event in events_res['StackEvents']:
             dt = event['Timestamp']
-            if dt < start_time:
-                return last_dt
+            if dt <= start_time:
+                break
+            events_to_print.insert(0, event)
+            last_dt = dt
+
+        for event in events_to_print:
             print "time: {}, status: {}, reason: {}, resource (logical): {}, resource (physical): {}, resource type: {}".format(
                 event['Timestamp'] if 'Timestamp' in event else '',
                 event['ResourceStatus'] if 'ResourceStatus' in event else '',
@@ -30,7 +36,7 @@ def _print_events(client, stack_id, start_time):
                 event['LogicalResourceId'] if 'LogicalResourceId' in event else '',
                 event['PhysicalResourceId'] if 'PhysicalResourceId' in event else '',
                 event['ResourceType'] if 'ResourceType' in event else '')
-            last_dt = dt
+
         next_token = events_res['NextToken'] if 'NextToken' in events_res else None
         loop_events = next_token is not None
 
@@ -41,7 +47,7 @@ def _wait_for_stack(client, stack_id, success_statuses, failure_statuses, sqs_cl
     start_time = datetime.datetime.now()
     start_time = start_time.replace(tzinfo=pytz.utc)
     while True:
-        _print_events(client, stack_id, start_time)
+        start_time = _print_events(client, stack_id, start_time)
         status_res = client.describe_stacks(
             StackName=stack_id
         )
@@ -75,10 +81,12 @@ def _wait_for_stack(client, stack_id, success_statuses, failure_statuses, sqs_cl
         time.sleep(10)
 
 
-def _cf_sns_sqs(client):
+def _cf_sns_sqs(region, stack_name='service'):
+    client = boto3.client('cloudformation', region_name=region)
+
     try:
         response = client.describe_stacks(
-            StackName='service'
+            StackName=stack_name
         )
     except botocore.exceptions.ClientError as e:
         return None
@@ -92,13 +100,31 @@ def _cf_sns_sqs(client):
             sqsarn = output['OutputValue']
     return {
         'sns': snsarn,
-        'sqs': sqsarn
+        'sqs': sqsarn,
+        'stack': stack_name
     }
 
 
-def create_stack(template, name, region, tags=[]):
+def create_utility_stack(region):
+    t = create_services()
+
+    stack_name = str(uuid4()).replace('-', '')
+    res, stack_name = create_stack(template=t, name=stack_name, region=region)
+    if not res:
+        delete_stack(stack_name, region)
+        sys.exit(-1)
+
+    return _cf_sns_sqs(region)
+
+
+def create_stack_deploy(template, name, region, tags=[]):
+    sns_sqs = create_utility_stack(region)
+    res = create_stack(template=template, name=name, region=region, sns_sqs=sns_sqs, tags=tags)
+    delete_stack(sns_sqs['stack'], region)
+    return res
+
+def create_stack(template, name, region, sns_sqs=None, tags=[]):
     client = boto3.client('cloudformation', region_name=region)
-    sns_sqs = _cf_sns_sqs(client)
 
     stack_json = template.to_json()
     response = client.create_stack(
@@ -239,7 +265,7 @@ if __name__ == "__main__":
     elif values.create == 'services':
         t = create_services()
 
-    res, stack_name = create_stack(template=t, name=values.name, region=values.region)
+    res, stack_name = create_stack_deploy(template=t, name=values.name, region=values.region)
     if not res:
         delete_stack(stack_name, values.region)
         sys.exit(-1)
