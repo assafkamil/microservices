@@ -34,8 +34,8 @@ def create_env(name, overrides, key_name, region, vpc_id, build, internal_domain
     repo = repo_res['repositoryMetadata']['cloneUrlHttp']
 
     # creating config service
-    role_profile = create_ec2_instance_role(t, 'configservice')
-    instance_info = get_instance_info('configservice', build, 't2.micro', role_profile['profile'], region,
+    role_profile = create_ec2_instance_role(t, 'configserver')
+    instance_info = get_instance_info('configserver', build, 't2.micro', role_profile['profile'], region,
                                       base_stack, overrides)
     commands = {
         "setrepoenv": {
@@ -65,7 +65,7 @@ def create_env(name, overrides, key_name, region, vpc_id, build, internal_domain
         key_name,
         instance_info['profile'],
         instance_info['instanceType'],
-        'ConfigService',
+        'configserver',
         vpc_id,
         elb_port=8888,
         instance_port=8888,
