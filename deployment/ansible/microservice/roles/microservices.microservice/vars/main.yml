@@ -5,6 +5,8 @@ supervisor_tasks:
     command: "{{ springboot_command }}"
     autostart: true
     autorestart: true
+    stdout_logfile: syslog
+    stderr_logfile: syslog
 newrelic_license_key: "{{ new_relic_key }}"
 newrelic_service_state: started
 newrelic_labels:
