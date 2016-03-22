@@ -114,7 +114,7 @@ def create_utility_stack(region):
         delete_stack(stack_name, region)
         sys.exit(-1)
 
-    return _cf_sns_sqs(region)
+    return _cf_sns_sqs(region, stack_name=stack_name)
 
 
 def create_stack_deploy(template, name, region, tags=[]):
@@ -122,6 +122,7 @@ def create_stack_deploy(template, name, region, tags=[]):
     res = create_stack(template=template, name=name, region=region, sns_sqs=sns_sqs, tags=tags)
     delete_stack(sns_sqs['stack'], region)
     return res
+
 
 def create_stack(template, name, region, sns_sqs=None, tags=[]):
     client = boto3.client('cloudformation', region_name=region)

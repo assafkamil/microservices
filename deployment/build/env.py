@@ -39,7 +39,7 @@ def create_env(name, overrides, key_name, region, vpc_id, build, internal_domain
                                       base_stack, overrides)
     commands = {
         "setappenvs": {
-            "command": "echo \"spring.cloud.config.server.git.uri={}\n\" >> /home/ubuntu/application.properties".format(repo)
+            "command": "echo \"\nspring.cloud.config.server.git.uri={}\n\" >> /home/ubuntu/application.properties".format(repo)
         }
     }
     if new_repo:
