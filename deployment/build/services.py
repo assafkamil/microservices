@@ -59,11 +59,11 @@ def create_sns_sqs(template, sns_name, sqs_name):
     ))
 
 
-def create_services(sns_name='cfSns', sqs_name='cfSqs'):
+def create_services(name='services', sns_name='cfSns', sqs_name='cfSqs'):
     t = Template()
     t.add_description("""\
     microservices stack""")
 
-    create_sns_sqs(t, sns_name, sqs_name)
+    create_sns_sqs(t, sns_name + name, sqs_name + name)
 
     return t

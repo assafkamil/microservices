@@ -26,7 +26,8 @@ def _print_events(client, stack_id, start_time):
             if dt <= start_time:
                 break
             events_to_print.insert(0, event)
-            last_dt = dt
+            if dt > last_dt:
+                last_dt = dt
 
         for event in events_to_print:
             print "time: {}, status: {}, reason: {}, resource (logical): {}, resource (physical): {}, resource type: {}".format(
